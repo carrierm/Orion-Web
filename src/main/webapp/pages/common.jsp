@@ -37,6 +37,7 @@
 	String serverStylesPath = serverContextPath + "/styles";
 	String serverExtPath = serverContextPath + "/ext-3.4.0";
 	String serverExt402aPath = serverContextPath + "/ext-4.0.2a";
+	String serverDataPath = serverContextPath + "/data";
 	//mapServer = "http://vmap0.tiles.osgeo.org/wms/vmap0";
 	//String mapServer1 = "http://vmap0.tiles.osgeo.org/wms/vmap0";
     //String mapTileLayer = "basic";
@@ -49,7 +50,8 @@
 	var serverImagesPath = "<%= serverImagesPath%>";
 	var serverKMLPath = "<%= serverKMLPath%>";
 	var serverStylesPath = "<%= serverStylesPath%>";
-                               
+	var serverDataPath = "<%= serverDataPath%>";
+	
 	formatLatLongDMS = function(coordinate) {
 		var coords = new Array();
 		var formattedString;

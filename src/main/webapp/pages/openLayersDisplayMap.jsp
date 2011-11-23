@@ -77,9 +77,9 @@
 						var dataObj = Ozone.util.parseJson(data);
 						var sourceWidget = dataObj.source;
 						var KMLURL = "";
-						 
-						var url = "https://localhost:9443/orionWeb/data/targets.jsp";
 
+						var url = serverDataPath + "/targets.jsp";
+						
 						if(dataObj.type == "LATLONG") {
 							KMLURL = url + "?SOURCE="+dataObj.source+"&DESTINATION='OPEN_LAYERS_DISPLAY_MAP'&TYPE='"+ dataObj.type+ "'&LAT="+dataObj.latlong.latitude+"&LONG="+dataObj.latlong.longitude;
 						} 

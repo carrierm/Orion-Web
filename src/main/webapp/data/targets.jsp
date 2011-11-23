@@ -4,7 +4,6 @@
 
 <%@page import="java.io.*, java.util.*, java.text.*"%>
 <%@page import="java.sql.*, javax.sql.*, javax.naming.*"%>
-
 <%@page import="javax.xml.transform.*, javax.xml.transform.dom.*, javax.xml.transform.stream.*, org.w3c.dom.*"%>
 
 <%@page import="javax.xml.parsers.DocumentBuilderFactory"%>
@@ -64,10 +63,10 @@
 	final String GOOGLE_EARTH_DISPLAY_MAP = "GOOGLE_EARTH_DISPLAY_MAP";
 	final String WORLD_WIND_DISPLAY_MAP = "WORLD_WIND_DISPLAY_MAP";
 	
-	final String databaseURL = "jdbc:postgresql://localhost:7443/postgis";
-	final String schema = "public";
-	final String userName = "";
-	final String password = "";
+	String connectionURL 	= "";
+	String driverClass 		= "";
+	String userName 		= "";
+	String password 		= "";
 	
 	if(requestSource!=null && (requestSource.equals("NAVIGATION_MAP")) || (requestSource.equals("DISPLAY_MAP") || requestSource.equals("CR_LIST") || requestSource.equals("TARGET_LIST")) ) {
 	
@@ -134,15 +133,46 @@
 		    DocumentBuilder docBuilder = dbFactory.newDocumentBuilder();
 		    xmlDoc = docBuilder.newDocument();
 
+		    InputStream in = this.getClass().getResourceAsStream("/jdbc.properties");
+			System.out.println("in: " + in);
+			
+			Properties jdbcProperties = new Properties();
+			if (in != null) {
+				jdbcProperties.load(in);
+			}
+			
+			// Retrieve jdbc connection properties from WEB-INF/classes/jdbc.properties
+			if (jdbcProperties != null) {
+				connectionURL = jdbcProperties.getProperty("connectionURL");
+				driverClass = jdbcProperties.getProperty("driverClass");
+				userName = jdbcProperties.getProperty("userName");
+				password = jdbcProperties.getProperty("password");
+			} else {
+				System.out.println("check jdbc properties");
+			}
+			
 			try {
-				Class.forName("org.postgresql.Driver");
+				if (!"".equals(driverClass.trim())) {
+					Class.forName(driverClass);
+				} else {
+					System.out.println("Couldn't find the driver! - empty configuration value");
+				}
 			} catch (ClassNotFoundException cnfe) {
 				System.out.println("Couldn't find the driver!");
 				cnfe.printStackTrace();
 				System.exit(1);
 			}
 			try {
-				conn = DriverManager.getConnection(databaseURL, userName, password);
+				if ("".equals(connectionURL.trim())) {
+					System.out.println("check connection url value");
+				}
+				if ("".equals(userName.trim())) {
+					System.out.println("check userName value");
+				}
+				if ("".equals(password.trim())) {
+					System.out.println("check password value");
+				}
+				conn = DriverManager.getConnection(connectionURL, userName, password);
 			} catch (SQLException se) {
 				System.out.println("Couldn't connect");
 				se.printStackTrace();

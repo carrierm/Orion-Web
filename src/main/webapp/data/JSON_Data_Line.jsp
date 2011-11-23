@@ -1,8 +1,7 @@
 <%@ page language="java" %> 
 <%@ page pageEncoding="UTF-8" %> 
 <%@ page contentType="text/html; charset=UTF-8" %>
-
-<%@ page import="java.util.*, java.sql.*, org.postgresql.util.PSQLException" %>
+<%@ page import="java.util.*, java.sql.*, java.io.*, javax.naming.*, org.postgresql.util.PSQLException" %>
 <%@ page import="net.sf.json.JSONObject" %>
 <%@ page import="net.sf.json.JSONArray" %>
 
@@ -12,26 +11,42 @@
 	private static String dn_key = "";
 %>
 <%
-	final String databaseURL = "jdbc:postgresql://localhost:7443/postgis";
-	final String schema = "public";
-	final String userName = "";
-	final String password = "";
-	
-	final String NOT_TASKED 	= "NOT TASKED";
-	final String UNTASKED		= "UNTASKED";
-	final String UNFULFILLED 	= "UNFULFILLED";
-	final String ACCOMPLISHED 	= "ACCOMPLISHED";
-	
-	JSONArray array = new JSONArray();
 	boolean retValue = true;
+	final String schema = "public";
+	String connectionURL 	= "";
+	String driverClass 		= "";
+	String userName 		= "";
+	String password 		= "";
 	
 	Connection conn = null;
 	Statement stmt = null;
 	ResultSet rs = null;
-	ResultSetMetaData rsmd = null;
-
+	JSONArray array = new JSONArray();
+	
+	InputStream in = this.getClass().getResourceAsStream("/jdbc.properties");
+	System.out.println("in: " + in);
+	
+	Properties jdbcProperties = new Properties();
+	if (in != null) {
+		jdbcProperties.load(in);
+	}
+	
+	// Retrieve jdbc connection properties from WEB-INF/classes/jdbc.properties
+	if (jdbcProperties != null) {
+		connectionURL = jdbcProperties.getProperty("connectionURL");
+		driverClass = jdbcProperties.getProperty("driverClass");
+		userName = jdbcProperties.getProperty("userName");
+		password = jdbcProperties.getProperty("password");
+	} else {
+		System.out.println("check jdbc properties");
+	}
+	
 	try {
-		Class.forName("org.postgresql.Driver");
+		if (!"".equals(driverClass.trim())) {
+			Class.forName(driverClass);
+		} else {
+			System.out.println("Couldn't find the driver! - empty configuration value");
+		}
 	} catch (ClassNotFoundException cnfe) {
 		retValue = false;
 		System.out.println("Couldn't find the driver!");
@@ -39,7 +54,16 @@
 		System.exit(1);
 	}
 	try {
-		conn = DriverManager.getConnection(databaseURL, userName, password);
+		if ("".equals(connectionURL.trim())) {
+			System.out.println("check connection url value");
+		}
+		if ("".equals(userName.trim())) {
+			System.out.println("check userName value");
+		}
+		if ("".equals(password.trim())) {
+			System.out.println("check password value");
+		}
+		conn = DriverManager.getConnection(connectionURL, userName, password);
 	} catch (SQLException se) {
 		retValue = false;
 		System.out.println("Couldn't connect");

@@ -29,7 +29,7 @@
 			
 			function getData(config) {
 				try {
-				    var url = "https://localhost:9443/orionWeb/data/JSON_Data_Line.jsp";
+				    var url = serverDataPath + "/JSON_Data_Line.jsp";
 					var responseVal = postURL(url,null);
 					var result = eval(trim(responseVal));
 					

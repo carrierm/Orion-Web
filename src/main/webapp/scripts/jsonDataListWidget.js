@@ -3,7 +3,7 @@ var editorGrid;
 
 function getData(config) {
 	try {
-		var url = "https://localhost:9443/orionWeb/data/JSON_Data_List.jsp";
+		var url = serverDataPath + "/JSON_Data_List.jsp";
 		var jsonContent = postURL(url,null);
 		logger.debug('jsonContent: ' + jsonContent);
 		return eval(trim(jsonContent));
