@@ -1,0 +1,191 @@
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Layer
+END
+WMTS.js
+K 25
+svn:wc:ra_dav:version-url
+V 112
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Layer/WMTS.js
+END
+ArcGIS93Rest.js
+K 25
+svn:wc:ra_dav:version-url
+V 120
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Layer/ArcGIS93Rest.js
+END
+Text.js
+K 25
+svn:wc:ra_dav:version-url
+V 112
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Layer/Text.js
+END
+GML.js
+K 25
+svn:wc:ra_dav:version-url
+V 111
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Layer/GML.js
+END
+Grid.js
+K 25
+svn:wc:ra_dav:version-url
+V 112
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Layer/Grid.js
+END
+WFS.js
+K 25
+svn:wc:ra_dav:version-url
+V 111
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Layer/WFS.js
+END
+MultiMap.js
+K 25
+svn:wc:ra_dav:version-url
+V 116
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Layer/MultiMap.js
+END
+Yahoo.js
+K 25
+svn:wc:ra_dav:version-url
+V 113
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Layer/Yahoo.js
+END
+MapGuide.js
+K 25
+svn:wc:ra_dav:version-url
+V 116
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Layer/MapGuide.js
+END
+WMS.js
+K 25
+svn:wc:ra_dav:version-url
+V 111
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Layer/WMS.js
+END
+ArcIMS.js
+K 25
+svn:wc:ra_dav:version-url
+V 114
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Layer/ArcIMS.js
+END
+KaMapCache.js
+K 25
+svn:wc:ra_dav:version-url
+V 118
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Layer/KaMapCache.js
+END
+Image.js
+K 25
+svn:wc:ra_dav:version-url
+V 113
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Layer/Image.js
+END
+PointTrack.js
+K 25
+svn:wc:ra_dav:version-url
+V 118
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Layer/PointTrack.js
+END
+WorldWind.js
+K 25
+svn:wc:ra_dav:version-url
+V 117
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Layer/WorldWind.js
+END
+XYZ.js
+K 25
+svn:wc:ra_dav:version-url
+V 111
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Layer/XYZ.js
+END
+FixedZoomLevels.js
+K 25
+svn:wc:ra_dav:version-url
+V 123
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Layer/FixedZoomLevels.js
+END
+TileCache.js
+K 25
+svn:wc:ra_dav:version-url
+V 117
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Layer/TileCache.js
+END
+Zoomify.js
+K 25
+svn:wc:ra_dav:version-url
+V 115
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Layer/Zoomify.js
+END
+HTTPRequest.js
+K 25
+svn:wc:ra_dav:version-url
+V 119
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Layer/HTTPRequest.js
+END
+KaMap.js
+K 25
+svn:wc:ra_dav:version-url
+V 113
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Layer/KaMap.js
+END
+Vector.js
+K 25
+svn:wc:ra_dav:version-url
+V 114
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Layer/Vector.js
+END
+EventPane.js
+K 25
+svn:wc:ra_dav:version-url
+V 117
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Layer/EventPane.js
+END
+GeoRSS.js
+K 25
+svn:wc:ra_dav:version-url
+V 114
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Layer/GeoRSS.js
+END
+VirtualEarth.js
+K 25
+svn:wc:ra_dav:version-url
+V 120
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Layer/VirtualEarth.js
+END
+MapServer.js
+K 25
+svn:wc:ra_dav:version-url
+V 117
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Layer/MapServer.js
+END
+SphericalMercator.js
+K 25
+svn:wc:ra_dav:version-url
+V 125
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Layer/SphericalMercator.js
+END
+TMS.js
+K 25
+svn:wc:ra_dav:version-url
+V 111
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Layer/TMS.js
+END
+Markers.js
+K 25
+svn:wc:ra_dav:version-url
+V 115
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Layer/Markers.js
+END
+Google.js
+K 25
+svn:wc:ra_dav:version-url
+V 114
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Layer/Google.js
+END
+Boxes.js
+K 25
+svn:wc:ra_dav:version-url
+V 113
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Layer/Boxes.js
+END

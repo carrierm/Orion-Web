@@ -1,0 +1,56 @@
+.classification{
+	text-align: center;
+	text-valign: middle;
+	font: small-caps 900 14px arial;
+	background-color: #000099; 
+	color: white;
+	padding-top: 2px; 
+	padding-bottom:2px;
+	height: 24px;
+}
+
+.banner{
+	font: times new roman 42px solid blue
+}
+
+.footer{
+	background-color:#d9e6f9;
+	height: 20px;
+}
+
+.menu a {
+	padding: 5px;
+	font: small-caps 900 12px arial;
+}
+
+.sysmenu{
+	
+}
+
+.canned-search-filter{
+	background-color:#fff;
+	margin-top: 5px;
+	padding: 5px;
+}
+
+.canned-search-filter td{
+	font-size: 12px;
+}
+.canned-search-filter table{
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.canned-search-data{
+	height: 99%;
+	overflow: scroll
+}
+
+.breadcrum{
+	margin-bottom:2px;
+}
+
+.breadcrum b{
+	color: #000;
+}
+

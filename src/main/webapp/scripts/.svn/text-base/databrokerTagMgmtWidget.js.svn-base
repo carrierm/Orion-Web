@@ -1,0 +1,438 @@
+var store;
+var columnModel;
+var editorGrid;
+var displayWindow;
+var pageSizeLimit 	= 100; 
+var pageNumber 		= 1;
+var showUnusedTags = false;
+var tagDisplayType = '';
+var general_search = '';
+
+function deleteTargetTag(config) {	
+	var configString = Ozone.util.toString(config);
+	var data = Ozone.util.parseJson(configString);
+	var count = data.count;
+	var tag_value = data.tag_value;
+	var tags_pk = data.tags_pk;
+	
+	var continueDelete = false;
+	
+	var deleteConfirm = confirm("Are You Sure You Want To Delete The Tag: " + tag_value + "?");
+	if (deleteConfirm) {
+		if (count != 0) {
+			var deleteUsedTagConfirm = confirm("This tag is currently is use throughout the application. Deleting it will delete all references to the tag. Are You Sure You Want To Continue?");
+			if (deleteUsedTagConfirm) {
+				continueDelete = true;
+			}
+		} else {
+			continueDelete = true;
+		}
+		
+		if (continueDelete) {
+			var result;
+			var responseVal;
+			if (tags_pk != null) {
+				var url = "JSON/JSON_DatabrokerTagMgmt.jsp?ACTION='DELETE_TAG'&count=" + count + "&tags_pk='" + tags_pk + "'";
+				logger.debug('url: ' + url);
+				responseVal = postURL(url,null);
+				result = eval(trim(responseVal));
+				
+				if (result == 'success') {
+					alert("Tag Was Successfully Deleted");
+				} else {
+					alert("There Was An Error In Deleting The Specified Tag. Please Contact Your System Administrator For Further Assistance");
+				}
+				store.loadData(getData());
+			}
+		}
+	}
+}
+
+function openTargetTagDetailsScreen(config) {
+	var configString = Ozone.util.toString(config);
+	var data = Ozone.util.parseJson(configString);
+	var tag_value = data.tag_value;
+	var tags_pk = data.tags_pk;
+	
+	logger.debug('tag_value: ' + tag_value);
+	logger.debug('tags_pk: ' + tags_pk);
+	
+	var url = "JSON/JSON_DatabrokerTagMgmt.jsp?ACTION='VIEW_TAG_DETAILS'&tags_pk='" + tags_pk + "'";
+	logger.debug('Databroker Tag Mgmt Widget: openTargetTagDetailsScreen(): url: ' + url);
+	var responseVal = postURL(url,null);
+	var results = eval(trim(responseVal));
+	logger.debug('results: ' + results);
+	
+	function resetSearch() {
+		try {
+			DetailsWindow.close();
+		} catch(err) {
+			logger.debug("CR List Widget: resetSearch(): err: " + err);
+		}
+	}
+	
+	var detailStore = new Ext.data.Store({
+		pageSize: pageSizeLimit,
+		autoLoad: {params:{start:0, limit:pageSizeLimit}},
+		proxy: new Ext.data.MemoryProxy(results),
+		reader: new Ext.data.ArrayReader({}, [
+          {name: 'dn_key'},
+          {name: 'target_id_fk'},
+          {name: 'created_by'},
+          {name: 'created_date'}
+          ]),
+        sortInfo:{field: 'dn_key', direction: "ASC"}
+	});
+	
+	var detailsColumnModel = new Ext.grid.ColumnModel(
+		[
+		 new Ext.grid.RowNumberer({width: 30}),
+		 {
+			 header     : 'DN Key',
+			 width     	: 150,
+			 align		: 'center',
+			 sortable 	: true,
+			 dataIndex	: 'dn_key',
+			 style		: {"text-align": 'center'},
+			 editor: new Ext.form.TextField({
+				 readOnly	: true,
+				 editable	: false
+	         }),
+			 renderer	:  function(val, x, store) {
+				 return '<div class=\"cellContent\">' + val + '</div>';
+			 }
+		 }, {
+			 header     : 'Target ID',
+			 width    	: 150,
+			 sortable 	: true,
+			 align		: 'center',
+			 dataIndex	: 'target_id_fk',
+			 style		: {"text-align": 'center'},
+			 editor: new Ext.form.TextField({
+				 readOnly	: true,
+				 editable	: false
+	         }),
+			 renderer	:  function(val, x, store) {
+				 return '<div class=\"cellContent\"><a href="javascript:getAllTargetWidgetDetails({target_key: \'' + store.data.target_id_fk + '\'});">' + val + '</a></div>';
+			 }
+		 }, {
+			 header     : 'Created By',
+			 width    	: 150,
+			 sortable 	: true,
+			 align		: 'center',
+			 dataIndex	: 'created_by',
+			 style		: {"text-align": 'center'},
+			 editor: new Ext.form.TextField({
+				 readOnly	: true,
+				 editable	: false
+	         }),
+			 renderer	:  function(val, x, store) {
+				 return '<div class=\"cellContent\">' + val + '</div>'; 
+			 }
+		 }, {
+			 header     : 'Created Date',
+			 width    	: 150,
+			 sortable 	: true,
+			 align		: 'center',
+			 dataIndex	: 'created_date',
+			 style		: {"text-align": 'center'},
+			 editor: new Ext.form.TextField({
+				 readOnly	: true,
+				 editable	: false
+	         }),
+			 renderer	:  function(val, x, store) {
+				 return '<div class=\"cellContent\">' + val + '</div>'; 
+			 }
+		 }]
+	);
+	
+	var detailsEditorGrid =  new Ext.grid.EditorGridPanel({
+		id		: 'editorGrid',
+		store	: detailStore,
+		cm		: detailsColumnModel,
+		sm		: new Ext.grid.RowSelectionModel({
+            singleSelect: true,
+            multiSelect: true,
+            listeners: {
+                 rowselect: function(smObj, rowIndex, record) {
+                     selRecordStore = record;
+                }
+           }
+        }),
+        autoHeight 		: true,
+        clicksToEdit	: 1,
+        stripeRows		: true,
+        autoSizeColumns	: true,
+		enableDragDrop  : true,
+		columnLines		: true
+	});
+	
+	DetailsWindow = new Ext.Window({
+		title		: 'Databroker Tag Management - Target Tag Details',
+		bodyStyle	: 'padding: 5px',
+		collapsible	: false,
+		x: 0, y: 0,
+		draggable	: false,
+		autoScroll	: true,
+		autoDestroy	: true,
+		width		: 650,
+		height		: 300,
+		items		: detailsEditorGrid,
+		buttons		: [
+			{
+				text: 'Close',
+				handler: resetSearch
+			}
+		]
+	});
+	detailStore.load();
+	// once all is done, show the details window
+	DetailsWindow.show();
+}
+
+function getData(config) {
+	try {
+		var url = "JSON/JSON_DatabrokerTagMgmt.jsp?pageNumber=" + pageNumber + "&pageSize=" + pageSizeLimit;
+		
+		if (tagDisplayType != '') {
+			url += "&tagDisplayType='" + tagDisplayType + "'";
+		}
+		if (general_search != null && general_search != '') {
+			url += "&general_search='" + general_search + "'";
+		}
+		logger.debug('Databroker Tag Mgmt Widget: getData(): url: ' + url);
+		var responseVal = postURL(url,null);
+		return eval(trim(responseVal));
+	} catch (err) {
+		logger.debug('Databroker Tag Mgmt Widget: getData(): err: ' + err);
+	}
+}
+
+function drawGridObject(configString) {
+	try {
+		Ext.app.SearchField = Ext.extend(Ext.form.TwinTriggerField, {
+		    initComponent : function(){
+		        Ext.app.SearchField.superclass.initComponent.call(this);
+		        this.on('specialkey', function(f, e){
+		            if(e.getKey() == e.ENTER){
+		                this.onTrigger2Click();
+		            }
+		        }, this);
+		    },
+		    id				: 'form_general_search',
+		    validationEvent	: false,
+		    validateOnBlur	: false,
+		    trigger1Class	: 'x-form-clear-trigger',
+		    trigger2Class	: 'x-form-search-trigger',
+		    hideTrigger1	: true,
+		    width			: 250,
+		    hasSearch 		: false,
+		    paramName 		: 'query',
+		    onTrigger1Click : function(){
+		    	this.setValue('');
+		    	this.triggers[0].hide();
+		    	general_search = '';
+		        store.loadData(getData());
+		    },
+		    onTrigger2Click : function(){
+		        var v = this.getRawValue();
+		        if(v.length < 1){
+		            this.onTrigger1Click();
+		            return;
+		        }
+		        general_search = v;
+		        this.triggers[0].show();
+		        store.loadData(getData());
+		    }
+		});
+		
+		store = new Ext.data.Store({
+			pageSize: pageSizeLimit,
+			proxy: new Ext.data.MemoryProxy(getData(configString)),
+			reader: new Ext.data.ArrayReader({}, [
+              {name: 'tags_pk'},
+              {name: 'tag_value'},
+              {name: 'count'},
+              {name: 'created_by'},
+              {name: 'created_date'}
+              ]),
+            sortInfo:{field: 'tag_value', direction: "ASC"}
+		});
+		
+		columnModel = new Ext.grid.ColumnModel(
+			[
+			{
+				 header     : 'Tag Value',
+				 width     	: 150,
+				 align		: 'center',
+				 sortable 	: true,
+				 dataIndex	: 'tag_value',
+				 style		: {"text-align": 'center'},
+				 renderer	:  function(val, x, store) {
+					 return '<div class=\"cellContent\">' + val + '</div>';
+				 }
+			 }, {
+				 header     : 'Count',
+				 width	 	: 150,
+				 sortable 	: true,
+				 align		: 'center',
+				 dataIndex	: 'count',
+				 style		: {"text-align": 'center'},
+				 renderer	:  function(val, x, store) {
+					 return '<div class=\"cellContent\">' + val + '</div>'; 
+				 }
+			 }, {
+				 header     : 'Created By',
+				 width	 	: 150,
+				 sortable 	: true,
+				 align		: 'center',
+				 dataIndex	: 'created_by',
+				 style		: {"text-align": 'center'},
+				 renderer	:  function(val, x, store) {
+					 return '<div class=\"cellContent\">' + val + '</div>'; 
+				 }
+			 }, {
+				 header     : 'Created Date',
+				 width	 	: 150,
+				 sortable 	: true,
+				 align		: 'center',
+				 dataIndex	: 'created_date',
+				 style		: {"text-align": 'center'},
+				 renderer	:  function(val, x, store) {
+					 return '<div class=\"cellContent\">' + val + '</div>'; 
+				 }
+			 }, {
+				 header     : 'User Details',
+				 tooltip	: 'View Users and the targets this tag is used for',
+				 width    	: 75,
+				 sortable 	: true,
+				 align		: 'center',
+				 dataIndex	: 'cr_key',
+				 style		: {"text-align": 'center'},
+				 renderer	:  function(val, x, store) {
+					 return '<div class=\"cellContent\"><img src="../images/details_icon.gif" alt="View Users and the targets this tag is used for" align=\"middle\" onClick="openTargetTagDetailsScreen({tags_pk: \'' + checkCharacters(store.data.tags_pk) + '\', tag_value: \'' + checkCharacters(store.data.tag_value) + '\'});" /></div>'; 
+				 }
+			 }, {
+				 header     : 'Delete',
+				 tooltip	: 'Delete this target tag',
+				 width    	: 50,
+				 sortable 	: true,
+				 align		: 'center',
+				 dataIndex	: 'cr_key',
+				 style		: {"text-align": 'center'},
+				 renderer	:  function(val, x, store) {
+					 return '<div class=\"cellContent\"><img src="../images/delete.gif" alt="Delete this Target Tag" align=\"middle\" onClick="deleteTargetTag({tags_pk: \'' + checkCharacters(store.data.tags_pk) + '\', tag_value: \'' + checkCharacters(store.data.tag_value) + '\', count: \'' + store.data.count + '\' });" /></div>'; 
+				 }
+			 }
+			 ]
+		);
+	    
+	    var combo_DisplayType = new Ext.form.ComboBox({
+			store : new Ext.data.SimpleStore({
+				fields	: ['displayType', 'displayValue'],
+				data	: [['','Show All Target Tags'], ['unused','Show Only Unused Target Tags'], ['used', 'Show Only Used Target Tags']]
+			}),
+			autoSelect 		: true,
+			triggerAction	: 'all',
+			fieldLabel		: 'Search Criteria',
+			labelStyle		: 'text-align:right;',
+			displayField	: 'displayValue',
+			valueField		: 'displayType',
+			allowBlank		: false,
+			editable		: false,
+			mode			: 'local',
+			width			: 160
+		});
+	    combo_DisplayType.setValue(combo_DisplayType.store.collect('displayType', true)[0]);
+	    combo_DisplayType.on('select', function(box, record, index) {
+	    	var newDisplayType = combo_DisplayType.store.collect('displayType', true)[index];
+	    	if (tagDisplayType != newDisplayType) {
+	    		tagDisplayType = newDisplayType;
+	    		store.loadData(getData());
+	    	}
+	    });
+	    
+		editorGrid =  new Ext.grid.EditorGridPanel({
+			id		: 'editorGrid',
+			store	: store,
+			cm		: columnModel,
+			sm		: new Ext.grid.RowSelectionModel({
+                singleSelect: true,
+                multiSelect: true,
+                listeners: {
+                     rowselect: function(smObj, rowIndex, record) {
+                         selRecordStore = record;
+                    }
+               }
+            }),
+            stripeRows		: true,
+            multiSelect		: true,
+            autoSizeColumns	: true,
+			enableDragDrop  : true,
+			columnLines		: true,
+			bbar: new Ext.PagingToolbar({
+	            pageSize	: pageSizeLimit,
+	            store		: store,
+	            displayInfo	: true,
+	            displayMsg	: 'Displaying Target Tag Records {0} - {1} of {2}',
+				emptyMsg	: 'No Target Tag Records To Display',
+	            items:[
+	                '-',
+		            {
+					    xtype: 'tbbutton',
+					    cls: 'x-btn-icon',
+					    icon : '../images/feedback_icon_small.jpg',
+					    tooltip	: 'Provide Feedback About This Form',
+					    width:30,
+					    handler: function() {
+					    	createFeedbackForm('Databroker Tag Management');
+					    }
+					}
+	            ]
+	        }),
+			tbar		: [
+		       combo_DisplayType, '-',
+		       new Ext.app.SearchField({
+		    	   store : store,
+		    	   tooltip	: 'Search For A Tag Value',
+		    	   width : 250
+		       })
+	       ]
+		});    
+		
+		displayWindow = new Ext.Viewport({
+			id			: 'displayWindow',
+			title		: 'Current Target Tags',
+			closable	: false,
+			width		: 630,
+			height		: 500,
+			resizable	: false,
+			collapsible	: false,
+			x: 0, y: 0,
+			draggable	: false,
+			minimizable	: false,
+			plain		: true,
+			layout		: 'fit',
+			items		: editorGrid
+		});
+		
+		store.load();
+		displayWindow.show();
+	} catch (err) {
+		logger.debug("Databroker Tag Mgmt Widget: drawGridObject(): err: " + err);
+	} 
+}
+
+var update = function(sender, msg) {
+	try {
+		logger.debug("Databroker Tag Mgmt Widget: update(): msg: " + msg);
+		store.loadData(getData(msg));
+	} catch(err) {
+		logger.debug("Databroker Tag Mgmt Widget: update(): err: " + err);
+	}
+}
+
+Ext.onReady(function(){
+	Ext.QuickTips.init();
+	drawGridObject();
+});

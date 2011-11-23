@@ -1,0 +1,1121 @@
+var store;
+var columnModel;
+var editorGrid;
+var displayWindow;
+var general_search;
+var Target_Key_Field;
+var Target_Key_SearchCriteria;
+var Target_ID_Field;
+var Target_ID_SearchCriteria;
+var Target_Name_Field;
+var Target_Name_SearchCriteria;
+var Target_Type_Field;
+var Target_Type_SearchCriteria;
+var Prism_ID_Field;
+var Prism_ID_SearchCriteria;
+var descriptionField;
+var textToDisplay = '';
+var cocom = '';
+var country = '';
+var polygon = '';
+var crKey = '';
+var listeningForUpdates = false;
+var pageSizeLimit = 100; 
+var pageNumber = 1;
+var totalPages = 5;
+
+function selectAll() {
+	try {
+		var inputsHeader = document.getElementById("selectRowHeader");
+		var checked=inputsHeader.checked;
+		var inputs = document.getElementsByTagName("input");
+		for (var i = 0; i < inputs.length; i++) {
+			if (inputs[i].type == "checkbox" && inputs[i].id == "selectRow") {
+				inputs[i].checked=checked;
+			}
+		}
+		checkEnable();
+	} catch(err){
+		logger.debug("Target List Widget: selectAll(): err: " + err);
+	}
+}
+
+function checkEnable() {
+	try {
+		var inputs = document.getElementsByTagName("input");
+		var checkedTrue=false;
+		var blnAllChecked = true;
+		for (var i = 0; i < inputs.length; i++) {
+			if (inputs[i].type == "checkbox" && inputs[i].id == "selectRow") {
+				if (!inputs[i].checked) {
+					blnAllChecked=false;
+					break;
+				}
+			}
+		}
+		for (var i = 0; i < inputs.length; i++) {
+			if (inputs[i].type == "checkbox" && inputs[i].checked && inputs[i].id == "selectRow") {
+				checkedTrue=true;
+				break;
+			}
+		}
+		if (blnAllChecked){
+			var inputsHeader = document.getElementById("selectRowHeader");
+			inputsHeader.checked=true;
+		} else {
+			var inputsHeader = document.getElementById("selectRowHeader");
+			inputsHeader.checked=false;
+		}
+		if (checkedTrue) {
+			Ext.getCmp('addToMapButton').enable();
+			Ext.getCmp('addToUserListButton').enable();
+		} else {
+			Ext.getCmp('addToMapButton').disable();
+			Ext.getCmp('addToUserListButton').disable();
+		}
+	} catch(err){
+		logger.debug("Target List Widget: checkEnable(): err: " + err);
+	}
+}
+
+function displayAddToMapFormWindow(){
+	try {
+		var inputs = document.getElementsByTagName("input");
+		var checked = new Array();
+		if (checked.length != 0) {
+			checked.length = 0;
+		}
+		for (var i = 0; i < inputs.length; i++) {
+			if (inputs[i].type == "checkbox" && inputs[i].id == "selectRow") {
+				if (inputs[i].checked) {
+					var containsValue = checked.indexOf("'" + inputs[i].name + "'");
+					if (containsValue == -1){
+						checked.push("'" + inputs[i].name + "'");
+					}
+				}
+			}
+		}
+		if (checked.length == 0) {
+			alert('Please select Target\'s');
+		} else {
+			if (checked.length > 120) {
+				alert("The maximum number of targets that can be added to the display map at a single time is 120. Only the first 120 targets selected will be added.");
+				var checked_temp = new Array();
+				for (var i = 0; i < checked.length; i++) {
+					checked_temp.push(checked[i]);
+					if (checked_temp.length==120){
+						break;
+					}
+				}
+				setSelectedTargets(checked_temp);
+			} else {
+				setSelectedTargets(checked);
+			}
+			lookupDisplayMapWidget();
+		}
+	} catch (err) {
+		logger.debug("Target List Widget: displayAddToMapFormWindow(): err: " + err);
+	}
+}
+
+function displayAddToUserListFormWindow() {
+	try {
+		var inputs = document.getElementsByTagName("input");
+		var checked = [];
+		for (var i = 0; i < inputs.length; i++) {
+			if (inputs[i].type == "checkbox" && inputs[i].id == "selectRow") {
+				if (inputs[i].checked) {
+					var containsValue = checked.indexOf("'" + inputs[i].name + "'");
+					if (containsValue == -1){
+						checked.push(inputs[i].name);
+					}
+				}
+			}
+		}
+		if (checked.length == 0) {
+			alert('Please select Target\'s');
+		} else {
+			setSelectedTargets(checked);
+			var result = updateUserTargetList("INSERT");
+			if (result) {
+				lookupUserTargetListWidget();
+			} else {
+				alert( "Database Insert Failed" );
+			}
+		}
+	} catch (err) {
+		logger.debug("Target List Widget: displayAddToUserListFormWindow(): err: " + err);
+	}
+}
+
+function resetSearchFields() {
+	try {
+		Target_Key_Field 			= '';
+		Target_Key_SearchCriteria 	= '';
+		Target_ID_Field 			= '';
+		Target_ID_SearchCriteria 	= '';
+		Target_Name_Field 			= '';
+		Target_Name_SearchCriteria 	= '';
+		Target_Type_Field 			= '';
+		Target_Type_SearchCriteria 	= '';
+		Prism_ID_Field 				= '';
+		Prism_ID_SearchCriteria 	= '';
+		general_search				= '';
+		
+		var form_general_search = Ext.getCmp('form_general_search');
+		if (form_general_search!=null) {
+			form_general_search.setValue("");
+		}
+		
+		crKey 						= '';
+		prev_crKey					= '';
+		cocom 						= '';
+		prev_cocom 					= '';
+		country 					= '';
+		prev_country 				= '';
+		polygon 					= '';
+		prev_polygon 				= '';
+		
+		var xmlhttp;
+		if (window.XMLHttpRequest) { xmlhttp=new XMLHttpRequest(); }
+		else { xmlhttp=new ActiveXObject("Microsoft.XMLHTTP"); }
+		
+		xmlhttp.open("POST", "#?crKey='" + crKey + "'", true);
+		xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+		xmlhttp.send("crKey='" + crKey + "'");
+		
+		if (!descriptionField || descriptionField == null) {
+			descriptionField = Ext.getCmp('displayDescription');
+		}
+		if (descriptionField != null) {
+			textToDisplay = 'Displaying All Target List Data';
+			descriptionField.update(textToDisplay);
+		}
+		store.loadData(getData());
+	} catch(err){
+		logger.debug("Target List Widget: resetSearchFields(): err: " + err);
+	}
+}
+
+function startAdvancedSearch(){
+	try {
+		var SearchForm;
+		var SearchWindow;
+		var Search_Target_Key;
+		var combo_Target_Key;
+		var Search_Target_ID;
+		var combo_Target_ID;
+		var Search_Target_Name;
+		var combo_Target_Name;
+		var Search_Target_Type;
+		var combo_Target_Type;
+		var Search_Prism_ID;
+		var combo_Prism_ID;
+		
+		function listSearch(){
+			try {
+				Target_Key_Field 			= '';
+				Target_Key_SearchCriteria 	= '';
+				Target_ID_Field 			= '';
+				Target_ID_SearchCriteria 	= '';
+				Target_Name_Field 			= '';
+				Target_Name_SearchCriteria 	= '';
+				Target_Type_Field 			= '';
+				Target_Type_SearchCriteria 	= '';
+				Prism_ID_Field 				= '';
+				Prism_ID_SearchCriteria 	= '';
+				general_search				= '';
+				
+				Target_Key_Field = checkCharacters(Search_Target_Key.getValue());	
+				Target_Key_SearchCriteria = combo_Target_Key.getValue();				
+				Target_ID_Field = checkCharacters(Search_Target_ID.getValue());
+				Target_ID_SearchCriteria = combo_Target_ID.getValue();		
+				Target_Name_Field = checkCharacters(Search_Target_Name.getValue());
+				Target_Name_SearchCriteria = combo_Target_Name.getValue();
+				Target_Type_Field = checkCharacters(Search_Target_Type.getValue());
+				Target_Type_SearchCriteria = combo_Target_Type.getValue();
+				Prism_ID_Field = checkCharacters(Search_Prism_ID.getValue());
+				Prism_ID_SearchCriteria = combo_Prism_ID.getValue();
+				
+				if (!descriptionField || descriptionField == null) {
+					descriptionField = Ext.getCmp('displayDescription');
+				}
+				if (descriptionField != null) {
+					textToDisplay = 'Updating Filtered Target List Data';
+					descriptionField.update(textToDisplay);
+				}
+				store.loadData(getData());
+				if (descriptionField != null) {
+					textToDisplay = 'Displaying Filtered Target List Data';
+					descriptionField.update(textToDisplay);
+				}
+				SearchWindow.close();
+			} catch(err) {
+				logger.debug("Target List Widget: listSearch(): err: " + err);
+			}
+		}
+
+		function resetSearch(){
+			try {
+				SearchWindow.close();
+			} catch(err){
+				logger.debug("Target List Widget: resetSearch(): err: " + err);
+			}
+		}
+
+		Search_Target_Key = createTextField('Target Key', 350, '95%');
+		combo_Target_Key = createTextFieldDropDown('Filter Criteria', 'text-align:right;', 150, true);
+		
+		Search_Target_ID = createTextField('Target ID', 350, '95%');
+		combo_Target_ID = createTextFieldDropDown('Filter Criteria', 'text-align:right;', 150, true);
+		
+		Search_Target_Name = createTextField('Target Name', 350, '95%');
+		combo_Target_Name = createNumericDropDown('Filter Criteria', 'text-align:right;', 150, true);
+		
+		Search_Target_Type = createTextField('Target Type', 350, '95%');
+		combo_Target_Type = createTextFieldDropDown('Filter Criteria', 'text-align:right;', 150, true);
+		
+		Search_Prism_ID = createDateField('Prism ID', 350, '95%');
+		combo_Prism_ID = createDateFieldDropDown('Filter Criteria', 'text-align:right;', 150, true);
+		
+		SearchForm = new Ext.FormPanel({
+			bodyStyle	: 'padding: 5px',
+			resizable	: false,
+			collapsible	: false,
+			x: 0, y: 0,
+			autoScroll	: true,
+			autoDestroy	: true,
+			draggable	: false,
+			minimizable	: false,
+			width		: 500,
+			height		: 1000,
+			items: [{
+				layout	: 'form',
+				border	: false,
+				items: [ 
+					{
+					   html		: 'Filter For Any Targets That Meet All Of The Specified Criteria',
+					   border	: false,
+					   cls		: 'x-form-item custom-label'
+					}, {
+			        	xtype 	: 'container',layout : 'column', anchor : '100%', defaultType : 'field',
+			        	items   : [
+							{ xtype  : 'container', layout : 'form', style: {"padding-top": '10px'}, items : [ Search_Target_Key ]},
+							{ xtype  : 'container', layout : 'form', style: {"padding-top": '10px'}, items : [ combo_Target_Key ]}
+			        	]
+			        }, {
+			        	xtype 	: 'container',layout : 'column', anchor : '100%', defaultType : 'field',
+			        	items  	: [
+			        	     { xtype  : 'container', layout : 'form', style: {"padding-top": '10px'}, items : [ Search_Target_ID ]},
+			        	     { xtype  : 'container', layout : 'form', style: {"padding-top": '10px'}, items : [ combo_Target_ID ]}
+			        	]
+			        }, {
+			        	xtype 	: 'container',layout : 'column', anchor : '100%', defaultType : 'field',
+			        	items   : [
+			        	     { xtype  : 'container', layout : 'form', style: {"padding-top": '10px'}, items : [ Search_Target_Name ]},
+						     { xtype  : 'container', layout : 'form', style: {"padding-top": '10px'}, items : [ combo_Target_Name ]}
+						]
+			        }, {
+			        	xtype 	: 'container',layout : 'column', anchor : '100%', defaultType : 'field',
+			        	items   : [
+			        	     { xtype  : 'container', layout : 'form', style: {"padding-top": '10px'}, items : [ Search_Target_Type ]},
+			        	     { xtype  : 'container', layout : 'form', style: {"padding-top": '10px'}, items : [ combo_Target_Type ]}
+			        	]
+			        }, {
+			        	xtype 	: 'container',layout : 'column', anchor : '100%', defaultType : 'field',
+			        	items   : [
+			        	     { xtype  : 'container', layout : 'form', style: {"padding-top": '10px'}, items : [ Search_Prism_ID ]},
+			        	     { xtype  : 'container', layout : 'form', style: {"padding-top": '10px'}, items : [ combo_Prism_ID ]}
+			        	]
+			        }
+				]
+			}]
+		});
+
+		SearchWindow = new Ext.Window({
+			title		: 'Advanced Target Filter',
+			closable	: true,
+			width		: 725,
+			height		: 300,
+			plain		: true,
+			layout		: 'fit',
+			items		: SearchForm,
+			buttons: [{
+				text	: 'Filter',
+				handler	: listSearch
+			},{
+				text	: 'Close',
+				handler	: resetSearch
+			}]
+		});
+
+		// once all is done, show the search window
+		SearchWindow.show();
+	} catch(err){
+		logger.debug("Target List Widget: startAdvahncedSearc(): err: " + err);
+	}
+} 
+
+function getData(config) {
+	try {
+		if (textToDisplay == '') {
+			textToDisplay = 'All Target List Data';
+		} else if (textToDisplay != '') {
+			textToDisplay = '';
+		}
+		
+		var xmlhttp;
+		if (window.XMLHttpRequest) { xmlhttp=new XMLHttpRequest(); }
+		else { xmlhttp=new ActiveXObject("Microsoft.XMLHTTP"); }
+		var eventType = '';
+		
+		var launchConfig;
+		if (config != null) {
+			launchConfig = config;
+		} else {
+			launchConfig = Ozone.launcher.WidgetLauncherUtils.getLaunchConfigData();
+		}
+		
+		if(launchConfig == null) {
+			data = {channel: CHANNEL_NAME_targets};
+			launchConfig = Ozone.util.toString(data);
+		}
+		
+		if (!launchConfig) {
+			var scope = this;
+			this.gadgetEventingController = new Ozone.eventing.Widget('rpc_relay.uncompressed.html', 
+				function() { 
+					scope.gadgetEventingController.subscribe.apply(scope, [ channelToUse, scope.update ]);
+					scope.update;
+				}
+			);
+		} else {
+			var data = Ozone.util.parseJson(launchConfig);
+			if (data.type != null) {
+				eventType = data.type;
+
+				if (data.type == 'WORLDVIEW') {
+					cocom = '';
+					country = '';
+					polygon = '';
+					crKey = '';
+					prev_cocom = '';
+					prev_country = '';
+					prev_polygon = '';
+					prev_crKey = '';
+				}
+				else if (data.type == 'COCOM') {
+					cocom = data.value;
+					country = '';
+					polygon = '';
+					crKey = '';
+					prev_cocom = '';
+					prev_country = '';
+					prev_polygon = '';
+					prev_crKey = '';
+					
+					xmlhttp.open("POST", "#?cocom='" + cocom + "'", true);
+					xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+					xmlhttp.send("cocom='" + cocom + "'");
+				} 
+				else if (data.type == 'COUNTRY') {
+					country = data.value;
+					crKey = '';
+					cocom = '';
+					polygon = '';
+					prev_cocom = '';
+					prev_country = '';
+					prev_polygon = '';
+					prev_crKey = '';
+					
+					xmlhttp.open("POST", "#?country='" + country + "'", true);
+					xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+					xmlhttp.send("country='" + country + "'");
+				} 
+				else if (data.type == 'POLYGON') {
+					polygon = data.value;
+					crKey = '';
+					cocom = '';
+					country = '';
+					prev_cocom = '';
+					prev_country = '';
+					prev_polygon = '';
+					prev_crKey = '';
+					
+					xmlhttp.open("POST", "#?polygon='" + polygon + "'", true);
+					xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+					xmlhttp.send("polygon='" + polygon + "'");
+				}
+				else if (data.type == 'CR_KEY') {
+					crKey = data.value;
+					cocom = '';
+					country = '';
+					polygon = '';
+					prev_cocom = '';
+					prev_country = '';
+					prev_polygon = '';
+					prev_crKey = '';
+					
+					xmlhttp.open("POST", "#?crKey='" + crKey + "'", true);
+					xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+					xmlhttp.send("crKey='" + crKey + "'");
+				}
+			}
+			var channelToUse = data.channel;
+			var scope = this;
+			this.gadgetEventingController = new Ozone.eventing.Widget('rpc_relay.uncompressed.html', 
+				function() {
+					scope.gadgetEventingController.subscribe.apply(scope, [ channelToUse, scope.update ]);
+					scope.update;
+				}
+			);
+		} 
+		if (cocom == '' || cocom == null || cocom == "null") {
+			if (prev_cocom != null && prev_cocom != '' && prev_cocom != "null") {
+				cocom = prev_cocom;
+				country = '';
+				polygon = '';
+				crKey = '';
+				
+				prev_country = '';
+				prev_polygon = '';
+				prev_crKey = '';
+			}
+		}
+		if (country == '' || country == null || country == "null") {
+			if (prev_country != null && prev_country != '' && prev_country != "null") {
+				country = prev_country;		
+				cocom = '';
+				polygon = '';
+				crKey = '';
+				prev_cocom = '';
+				prev_polygon = '';
+				prev_crKey = '';
+			}
+		}
+		if (polygon == '' || polygon == null || polygon == "null") {
+			if (prev_polygon != null && prev_polygon != '' && prev_polygon != "null") {
+				polygon = prev_polygon;
+				cocom = '';
+				country = '';
+				crKey = '';
+				prev_cocom = '';
+				prev_country = '';
+				prev_crKey = '';
+			}
+		}
+		if (crKey == '' || crKey == null || crKey == "null") {
+			if (prev_crKey != null && prev_crKey != '' && prev_crKey != "null") {
+				crKey = prev_crKey;
+				cocom = '';
+				country = '';
+				polygon = '';
+				prev_cocom = '';
+				prev_country = '';
+				prev_polygon = '';
+			}
+		}
+		if (eventType != 'WORLDVIEW') {
+			var url = "JSON/JSON_Target_List.jsp?pageNumber=" + pageNumber + "&pageSize=" + pageSizeLimit;
+			
+			if (general_search != null && general_search != '') {
+				url += "&general_search='" + general_search + "'";
+			}
+			if (cocom != null && cocom != '') {
+				url += "&cocom='" + cocom + "'";
+				textToDisplay = ' Target List Values for COCOM: ' + cocom;
+			}
+			if (country != null && country != '') {
+				url += "&country='" + country + "'";
+				textToDisplay = ' Target List Values for COUNTRY: ' + country;
+			}
+			if (polygon != null && polygon != '') {
+				url += "&polygon='" + polygon + "'";
+				textToDisplay = ' Target List Values for specified Polygon';
+			}
+			if (crKey != null && crKey != '') {
+				url += "&cr_key='" + crKey + "'";
+				textToDisplay = ' Target List Values for CR Key: ' + crKey;
+			}
+			/*if (displayActiveResults) {
+				url += "&displayActiveResults=" + displayActiveResults;
+			}
+			if (displayInActiveResults) {
+				url += "&displayInActiveResults=" + displayInActiveResults;
+			}
+			if (displayEmphasizedResults) {
+				url += "&displayEmphasizedResults=" + displayEmphasizedResults;
+			}
+			if (displayUnEmphasizedResults) {
+				url += "&displayUnEmphasizedResults=" + displayUnEmphasizedResults;
+			}
+			if (displayNoImagesCollectedResults) {
+				url += "&displayNoImagesCollectedResults=" + displayNoImagesCollectedResults;
+			}
+			if (displayImagesCollectedResults) {
+				url += "&displayImagesCollectedResults=" + displayImagesCollectedResults;
+			}
+			if (displayNoImagesRemainingResults) {
+				url += "&displayNoImagesRemainingResults=" + displayNoImagesRemainingResults;
+			}
+			if (displayImagesRemainingResults) {
+				url += "&displayImagesRemainingResults=" + displayImagesRemainingResults;
+			}*/
+			if (Target_Key_Field != null && Target_Key_Field != '') {
+				url += "&target_key='" + Target_Key_Field + "'";
+				url += "&target_key_criteria='" + Target_Key_SearchCriteria + "'";
+			}
+			if (Target_ID_Field != null && Target_ID_Field != '') {
+				url += "&target_id='" + Target_ID_Field + "'";
+				url += "&target_id_criteria='" + Target_ID_SearchCriteria + "'";
+			}
+			if (Target_Name_Field != null && Target_Name_Field != '') {
+				url += "&target_name='" + Target_Name_Field + "'";
+				url += "&target_name_criteria='" + Target_Name_SearchCriteria + "'";
+			}
+			if (Target_Type_Field != null && Target_Type_Field != '') {
+				url += "&target_type='" + Target_Type_Field + "'";
+				url += "&target_type_criteria='" + Target_Type_SearchCriteria + "'";
+			}
+			if (Prism_ID_Field != null && Prism_ID_Field != '') {
+				url += "&prism_id='" + Prism_ID_Field + "'";
+				url += "&prism_id_criteria='" + Prism_ID_SearchCriteria + "'";
+			}
+			
+			if (textToDisplay == '') {
+				textToDisplay = 'All Target List Data';
+			}
+			
+			if (!descriptionField || descriptionField == null) {
+				descriptionField = Ext.getCmp('displayDescription');
+			}
+			if (descriptionField != null) {
+				descriptionField.update('Updating ' + textToDisplay);
+			}
+			logger.debug('Target List Widget: getData(): url: ' + url);
+			var responseVal = postURL(url,null);
+			if (descriptionField != null) {
+				descriptionField.update('Displaying ' + textToDisplay);
+			}
+			return eval(trim(responseVal));
+		} else {
+			if (!descriptionField || descriptionField == null) {
+				descriptionField = Ext.getCmp('displayDescription');
+			}
+			if (descriptionField != null) {
+				textToDisplay = 'World View Event Selected';
+				descriptionField.update(textToDisplay);
+			}
+			return '';
+		}
+	} catch (err) {
+		logger.debug('Target List Widget: getData(): err: ' + err);
+	}
+}
+
+function drawGridObject(configString) {
+	try {
+		Ext.app.SearchField = Ext.extend(Ext.form.TwinTriggerField, {
+		    initComponent : function(){
+		        Ext.app.SearchField.superclass.initComponent.call(this);
+		        this.on('specialkey', function(f, e){
+		            if(e.getKey() == e.ENTER){
+		                this.onTrigger2Click();
+		            }
+		        }, this);
+		    },
+		    id				: 'form_general_search',
+		    validationEvent	: false,
+		    validateOnBlur	: false,
+		    trigger1Class	: 'x-form-clear-trigger',
+		    trigger2Class	: 'x-form-search-trigger',
+		    hideTrigger1	: true,
+		    width			: 250,
+		    hasSearch 		: false,
+		    paramName 		: 'query',
+
+		    onTrigger1Click : function(){
+		    	this.setValue('');
+		    	this.triggers[0].hide();
+		    	Target_Key_Field 			= '';
+				Target_Key_SearchCriteria 	= '';
+				Target_ID_Field 			= '';
+				Target_ID_SearchCriteria 	= '';
+				Target_Name_Field 			= '';
+				Target_Name_SearchCriteria 	= '';
+				Target_Type_Field 			= '';
+				Target_Type_SearchCriteria 	= '';
+				Prism_ID_Field 				= '';
+				Prism_ID_SearchCriteria 	= '';
+				general_search				= '';
+				
+				if (!descriptionField || descriptionField == null) {
+					descriptionField = Ext.getCmp('displayDescription');
+				}
+		    	if (descriptionField != null) {
+		    		textToDisplay = 'Displaying All Target List Data';
+		    		descriptionField.update(textToDisplay);
+		    	}
+		        store.loadData(getData());
+		    },
+		    onTrigger2Click : function(){
+		    	var v = checkCharacters(this.getRawValue());
+		        if(v.length < 1){
+		            this.onTrigger1Click();
+		            return;
+		        }
+		        Target_Key_Field 			= '';
+				Target_Key_SearchCriteria 	= '';
+				Target_ID_Field 			= '';
+				Target_ID_SearchCriteria 	= '';
+				Target_Name_Field 			= '';
+				Target_Name_SearchCriteria 	= '';
+				Target_Type_Field 			= '';
+				Target_Type_SearchCriteria 	= '';
+				Prism_ID_Field 				= '';
+				Prism_ID_SearchCriteria 	= '';
+				general_search				= '';
+		        general_search = v;
+		        this.triggers[0].show();
+		        if (!descriptionField || descriptionField == null) {
+					descriptionField = Ext.getCmp('displayDescription');
+				}
+		        if (descriptionField != null) {
+		        	textToDisplay = 'Displaying General Filtered Target List Data For Term: ' + general_search;
+		        	descriptionField.update(textToDisplay);
+		        }
+		        store.loadData(getData());
+		    }
+		});
+		
+		store = new Ext.data.Store({
+			pageSize: pageSizeLimit,
+			autoLoad: {params:{start:0, limit:pageSizeLimit}},
+			proxy: new Ext.data.MemoryProxy(getData(configString)),
+			reader: new Ext.data.ArrayReader({}, [
+                {name: 'target_key'},
+			   	{name: 'target_id'},
+			   	{name: 'target_name'},
+			   	{name: 'target_type'},
+			   	{name: 'prism_id'}
+              ]),
+            sortInfo:{field: 'target_name', direction: "ASC"}
+		});
+		
+		columnModel = new Ext.grid.ColumnModel(
+		[
+		 	new Ext.grid.RowNumberer({width: 30}),
+		 	{
+				header			: '<input id="selectRowHeader" type="checkbox" onClick="selectAll();"/>',
+				align			: 'center',
+				dataIndex		: 'target_key',
+				menuDisabled	: true,
+				sortable 		: false,
+				width			: 25,        
+				renderer		: function(val, x, store) {
+					return '<div class=\"cellContent\"><input id="selectRow" onClick="checkEnable();" type="checkbox" name="' + val + '"/></div>';
+				}
+			}, {
+				header     	: 'Target Key',
+				width     	: 150,
+				sortable 	: false,
+				dataIndex	: 'target_key',
+				textAlign	: 'center',
+				align		: 'center',
+				style		: {"text-align": 'center' },
+				editor		: new Ext.form.TextField({
+					 readOnly	: true,
+					 editable	: false
+		        }),
+				renderer	:  function(val, x, store) {
+					return '<div class=\"cellContent\">' + val + '</div>';
+				}
+			}, {
+				header     	: 'Target ID',
+				width	 	: 150,
+				sortable 	: true,
+				dataIndex	: 'target_id',
+				align		: 'center',
+				style		: {"text-align": 'center' },
+				editor		: new Ext.form.TextField({
+					 readOnly	: true,
+					 editable	: false
+		        }),
+				renderer	:  function(val, x, store) {
+					return '<div class=\"cellContent\">' + val + '</div>'; 
+				}
+			}, {
+				header     	: 'Target Name',
+				width    	: 150,
+				sortable 	: true,
+				dataIndex	: 'target_name',
+				align		: 'center',
+				style		: {"text-align": 'center' },
+				editor		: new Ext.form.TextField({
+					 readOnly	: true,
+					 editable	: false
+		        }),
+				renderer	:  function(val, x, store) {
+					return '<div class=\"cellContent\">' + val + '</div>'; 
+				}
+			}, {
+				header     	: 'Target Type',
+				width    	: 75,
+				sortable 	: true,
+				dataIndex	: 'target_type',
+				align		: 'center',
+				style		: {"text-align": 'center' },
+				editor		: new Ext.form.TextField({
+					 readOnly	: true,
+					 editable	: false
+		        }),
+				renderer	:  function(val, x, store) {
+					return '<div class=\"cellContent\">' + val + '</div>'; 
+				}
+			}, {
+				header     	: 'Prism ID',
+				width    	: 150,
+				sortable 	: true,
+				dataIndex	: 'prism_id',
+				align		: 'center',
+				style		: {"text-align": 'center' },
+				editor		: new Ext.form.TextField({
+					 readOnly	: true,
+					 editable	: false
+		        }),
+				renderer	:  function(val, x, store){
+					return '<div class=\"cellContent\">' + val + '</div>'; 
+				}
+			}, {
+				header     	: 'More Details',
+				tooltip		: 'View More Details About This Target',
+				width    	: 75,
+				sortable 	: true,
+				dataIndex	: 'target_key',
+				align		: 'center',
+				style		: {"text-align": 'center'},
+				renderer	:  function(val, x, store) {
+					return '<div class=\"cellContent\"><img src="../images/details_icon.gif" alt="View More Details About This Target" align="middle" onClick="getAllTargetWidgetDetails({target_key: \'' + store.data.target_key + '\'});"  /></div>';
+				}
+			}, {
+				header     	: 'History',
+				tooltip		: 'View Target History',
+				width    	: 75,
+				sortable 	: true,
+				dataIndex	: 'target_key',
+				align		: 'center',
+				style		: {"text-align": 'center'},
+				renderer	:  function(val, x, store) {
+					return '<div class=\"cellContent\"><img src="../images/history-icon_small.gif" alt="View Target History" align="middle" onClick="getTargetHistory({target_key: \'' + store.data.target_key + '\'});"  /></div>'; 
+				}
+			}, {
+				 header     : 'View Requests',
+				 tooltip	: 'View All Target Collection Requests Associated With This Target',
+				 width    	: 100,
+				 sortable 	: true,
+				 align		: 'center',
+				 dataIndex	: 'target_key',
+				 style		: {"text-align": 'center'},
+				 renderer	:  function(val, x, store) {
+					 return '<div class=\"cellContent\"><img src="../images/clock_small.png" alt="View All Target Collection Requests Associated With This Target" align=\"middle\" onClick="getTargetCollectionRequests({target_key: \'' + store.data.target_key + '\'});"  /></div>'; 
+				 }
+			 }
+		]);
+		/*var menu = new Ext.menu.Menu({
+	        id		: 'mainMenu',
+	        style	: { overflow: 'visible' },
+	        items	: [
+	            {
+	                text	: 'Target Status',
+	                menu	: {
+	                    items	: [
+	                        {
+	                            text		: 'Active Targets',
+	                            checked		: displayActiveResults,
+	                            checkHandler: function(item, checked) {
+	                            	displayActiveResults = checked;
+	                            	store.loadData(getData());
+	                            }
+	                        }, {
+	                            text		: 'In-Active Targets',
+	                            checked		: displayInActiveResults,
+	                            checkHandler: function(item, checked) {
+	                            	displayInActiveResults = checked;
+	                            	store.loadData(getData());
+	                            }
+	                        }
+	                    ]
+	                }
+	            }, {
+	                text: 'Target Emphasis',
+	                menu: {
+	                    items: [
+	                        {
+	                            text: 'Emphasized Targets',
+	                            checked: displayEmphasizedResults,
+	                            checkHandler: function(item, checked) {
+	                            	displayEmphasizedResults = checked;
+	                            	store.loadData(getData());
+	                            }
+	                        }, {
+	                            text: 'Not-Emphasized Targets',
+	                            checked: displayUnEmphasizedResults,
+	                            checkHandler: function(item, checked) {
+	                            	displayUnEmphasizedResults = checked;
+	                            	store.loadData(getData());
+	                            }
+	                        }
+	                    ]
+	                }
+	            }, {
+	                text: 'Images Collected',
+	                menu: {
+	                    items: [
+	                        {
+	                            text: '0',
+	                            checked: displayNoImagesCollectedResults,
+	                            checkHandler: function(item, checked) {
+	                            	displayNoImagesCollectedResults = checked;
+	                            	store.loadData(getData());
+	                            }
+	                        }, {
+	                            text: '1+',
+	                            checked: displayImagesCollectedResults,
+	                            checkHandler: function(item, checked) {
+	                            	displayImagesCollectedResults = checked;
+	                            	store.loadData(getData());
+	                            }
+	                        }
+	                    ]
+	                }
+	            }, {
+	                text: 'Images Remaining',
+	                menu: {
+	                    items: [
+	                        {
+	                            text: '0',
+	                            checked: displayNoImagesRemainingResults,
+	                            checkHandler: function(item, checked) {
+	                            	displayNoImagesRemainingResults = checked;
+	                            	store.loadData(getData());
+	                            }
+	                        }, {
+	                            text: '1+',
+	                            checked: displayImagesRemainingResults,
+	                            checkHandler: function(item, checked) {
+	                            	displayImagesRemainingResults = checked;
+	                            	store.loadData(getData());
+	                            }
+	                        }
+	                    ]
+	                }
+	            }
+	        ]
+	    });*/
+		
+		var displayDetailsHtml = getDisplayDescriptionHtml();
+		var selectedRow = 0;
+		editorGrid =  new Ext.grid.EditorGridPanel({
+			id			: 'editorGrid',
+			store		: store,
+			cm			: columnModel,
+			sm		: new Ext.grid.RowSelectionModel({
+                singleSelect: true,
+                multiSelect: true
+            }),
+			stripeRows	: true,
+			clicksToEdit: 1,
+			bbar: new Ext.PagingToolbar({
+	            pageSize	: pageSizeLimit,
+	            store		: store,
+	            displayInfo	: true,
+	            displayMsg	: 'Displaying Target Records {0} - {1} of {2}',
+				emptyMsg	: 'No Target Records To Display',
+	            items:[
+	                '-',
+		            {
+					    xtype: 'tbbutton',
+					    cls: 'x-btn-icon',
+					    icon : '../images/feedback_icon_small.jpg',
+					    tooltip	: 'Provide Feedback About This Form',
+					    width:30,
+					    handler: function() {
+					    	createFeedbackForm('Target List');
+					    }
+					}, '-',
+					{
+						   html: displayDetailsHtml,
+						   id: 'displayDescription'
+					}
+	            ]
+	        }),
+			tbar		: [
+		       {
+					xtype		: 'checkbox',
+	                checked		: listeningForUpdates,
+	                boxLabel	: 'Freeze Data',
+	                tooltip		: 'Freeze the data in this grid and do not respond to outside updates',
+	                width		: 85,
+	                name		: 'listenForUpdatesButton',
+	                id			: 'listenForUpdatesButton',
+	                cls			: 'x-check-group-alt',
+	                handler		: function() {
+	                	listeningForUpdates = !listeningForUpdates;
+	                }
+	            }, '-', {
+		    	   id			: 'addToMapButton',
+		    	   text			: 'Add To Map',
+		    	   iconCls		: 'map-add',
+		    	   tooltip		: 'Add The Selected Target\'s to the Map',
+		    	   disabled		: true,
+		    	   cls			: 'x-form-toolbar-standardButton',
+		    	   handler		: displayAddToMapFormWindow
+		       }, '-', {
+		    	   id			: 'addToUserListButton',
+		    	   text			: 'Add To User List',
+		    	   iconCls		: 'userList-add',
+		    	   tooltip		: 'Add The Selected Target\'s to the User List',
+		    	   disabled		: true,
+		    	   cls			: 'x-form-toolbar-standardButton',
+		    	   handler		: displayAddToUserListFormWindow
+		       }, /*'-', {
+		            text:'Filter',
+		            iconCls: 'bmenu',
+		            menu: menu
+			    },*/ '-', {
+		    	   text		: 'Adv. Filter',
+		    	   tooltip	: 'Advanced Filter',
+		    	   handler	: startAdvancedSearch,   
+		    	   iconCls	: 'search'
+		       }, '-', 
+		       new Ext.app.SearchField({
+		    	   store : store,
+		    	   width : 250
+		       }), {
+		    	   text		: 'Clear Filter Criteria',
+		    	   tooltip	: 'Remove Filter Criteria',
+		    	   handler	: resetSearchFields,   
+		    	   iconCls	:'search'
+		       }
+		     ]
+		});    
+		descriptionField = Ext.getCmp('displayDescription');
+		
+		function onEditorGridContextMenu(grid, rowIndex, e){
+			e.stopEvent();
+		    var coords = e.getXY();
+		    GridRowContextMenu.rowRecord = grid.store.getAt(rowIndex);
+		    grid.selModel.selectRow(rowIndex);
+		    GridRowContextMenu.showAt([coords[0], coords[1]]);
+		}
+
+		GridRowContextMenu = new Ext.menu.Menu({
+		      id: 'GridRowContextMenu',
+		      items: [
+		          { text: 'More Details',  iconCls:'view-details', 				 handler: function() { getAllTargetWidgetDetails({target_key:GridRowContextMenu.rowRecord.get('target_key')}); }},
+		          { text: 'View History',  iconCls:'target_history', 			 handler: function() { getTargetHistory({target_key:GridRowContextMenu.rowRecord.get('target_key')}); }},
+		          { text: 'View Requests', iconCls:'target_collection_requests', handler: function() { getTargetCollectionRequests({target_key:GridRowContextMenu.rowRecord.get('target_key')}); }},
+		          '-',
+		          { text: 'Add To Map', iconCls:'map-add', handler: function() {
+		        	  var checked = new Array();
+		        	  checked.push('\'' + GridRowContextMenu.rowRecord.get('target_key') + '\'');
+		        	  setSelectedTargets(checked);
+		        	  lookupDisplayMapWidget();
+		          }},
+		          { text: 'Add To User List', iconCls:'userList-add', handler: function() {
+		        	  var checked = new Array();
+		        	  checked.push(GridRowContextMenu.rowRecord.get('target_key'));
+		        	  setSelectedTargets(checked);
+		        	  var result = updateUserTargetList("INSERT");
+		        	  if (result) {
+		        		  lookupUserTargetListWidget();
+		        	  } else {
+		        		  alert( "Database Insert Failed" );
+		        	  }
+		          }}
+		      ]
+		 });
+		editorGrid.addListener('rowcontextmenu', onEditorGridContextMenu);
+		
+		displayWindow = new Ext.Viewport({
+			id			: 'displayWindow',
+			title		: 'Current Target Requests',
+			closable	: false,
+			width		: 1100,
+			height		: 650,
+			resizable	: false,
+			collapsible	: false,
+			x: 0, y: 0,
+			draggable	: false,
+			minimizable	: false,
+			plain		: true,
+			layout		: 'fit',
+			items		: editorGrid
+		});
+		
+		store.load();
+		//store.load({params:{start:0, limit:pageSizeLimit}});
+		displayWindow.show();
+		
+	} catch (err) {
+		alert("err: " + err);
+	}  
+}
+
+function getDisplayDescriptionHtml() {
+	textToDisplay = 'Displaying All Target List Data';
+	if (cocom != null && cocom != '') {
+		textToDisplay = 'Displaying Target List Values for COCOM: ' + cocom;
+	}
+	if (country != null && country != '') {
+		textToDisplay = 'Displaying Target List Values for COUNTRY: ' + country;
+	}
+	if (polygon != null && polygon != '') {
+		textToDisplay = 'Displaying Target List Values for specified Polygon';
+	}
+	if (crKey != null && crKey != '') {
+		textToDisplay = 'Displaying Target List Values for CR Key: ' + crKey;
+	}
+	return textToDisplay;
+}
+
+var update = function(sender, msg) {
+	try {
+		logger.debug("Target List Widget: update(): msg: " + msg);
+		if (!listeningForUpdates) {
+			logger.debug('Target List Widget :: MSG :' + msg );
+			var eventType = '';
+			var data = Ozone.util.parseJson(msg);
+			if (data.type != null) {
+				logger.debug('data.type: ' + data.type);
+				if (data.type == 'COCOM') {
+					cocom = data.value;
+					textToDisplay = 'Updating Target List for COCOM: ' + cocom;
+				} 
+				if (data.type == 'COUNTRY') {
+					country = data.value;
+					textToDisplay = 'Updating Target List for COUNTRY: ' + cocom;
+				} 
+				if (data.type == 'POLYGON') {
+					polygon = data.value;
+					textToDisplay = 'Updating Target List for selected POLYGON';
+				}
+			}
+			if (!descriptionField || descriptionField == null) {
+				descriptionField = Ext.getCmp('displayDescription');
+			}
+			if (descriptionField != null) {
+				descriptionField.update(textToDisplay);
+			}
+			//if (eventType != 'TARGET_KEY')
+			store.loadData(getData(msg));
+		}
+	} catch(err) {
+		logger.debug('Target List Widget update() err: ' + err);
+	}
+}
+
+Ext.onReady(function(){
+	Ext.QuickTips.init();
+	drawGridObject();
+});

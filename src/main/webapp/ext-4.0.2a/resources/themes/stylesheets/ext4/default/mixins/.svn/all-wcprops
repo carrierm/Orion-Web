@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 124
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/ext-4.0.2a/resources/themes/stylesheets/ext4/default/mixins
+END
+_frame.scss
+K 25
+svn:wc:ra_dav:version-url
+V 136
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/ext-4.0.2a/resources/themes/stylesheets/ext4/default/mixins/_frame.scss
+END
+_color-by-background.scss
+K 25
+svn:wc:ra_dav:version-url
+V 150
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/ext-4.0.2a/resources/themes/stylesheets/ext4/default/mixins/_color-by-background.scss
+END
+_inner-border.scss
+K 25
+svn:wc:ra_dav:version-url
+V 143
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/ext-4.0.2a/resources/themes/stylesheets/ext4/default/mixins/_inner-border.scss
+END
+_background-gradient.scss
+K 25
+svn:wc:ra_dav:version-url
+V 150
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/ext-4.0.2a/resources/themes/stylesheets/ext4/default/mixins/_background-gradient.scss
+END
+_theme-background-image.scss
+K 25
+svn:wc:ra_dav:version-url
+V 153
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/ext-4.0.2a/resources/themes/stylesheets/ext4/default/mixins/_theme-background-image.scss
+END

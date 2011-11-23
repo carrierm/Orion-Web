@@ -1,0 +1,245 @@
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Control
+END
+MouseToolbar.js
+K 25
+svn:wc:ra_dav:version-url
+V 122
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Control/MouseToolbar.js
+END
+Navigation.js
+K 25
+svn:wc:ra_dav:version-url
+V 120
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Control/Navigation.js
+END
+LayerSwitcher.js
+K 25
+svn:wc:ra_dav:version-url
+V 123
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Control/LayerSwitcher.js
+END
+DrawFeature.js
+K 25
+svn:wc:ra_dav:version-url
+V 121
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Control/DrawFeature.js
+END
+ZoomPanel.js
+K 25
+svn:wc:ra_dav:version-url
+V 119
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Control/ZoomPanel.js
+END
+PanZoom.js
+K 25
+svn:wc:ra_dav:version-url
+V 117
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Control/PanZoom.js
+END
+Permalink.js
+K 25
+svn:wc:ra_dav:version-url
+V 119
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Control/Permalink.js
+END
+Scale.js
+K 25
+svn:wc:ra_dav:version-url
+V 115
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Control/Scale.js
+END
+PanPanel.js
+K 25
+svn:wc:ra_dav:version-url
+V 118
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Control/PanPanel.js
+END
+Panel.js
+K 25
+svn:wc:ra_dav:version-url
+V 115
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Control/Panel.js
+END
+OverviewMap.js
+K 25
+svn:wc:ra_dav:version-url
+V 121
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Control/OverviewMap.js
+END
+PanZoomBar.js
+K 25
+svn:wc:ra_dav:version-url
+V 120
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Control/PanZoomBar.js
+END
+WMTSGetFeatureInfo.js
+K 25
+svn:wc:ra_dav:version-url
+V 128
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Control/WMTSGetFeatureInfo.js
+END
+GetFeature.js
+K 25
+svn:wc:ra_dav:version-url
+V 120
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Control/GetFeature.js
+END
+Pan.js
+K 25
+svn:wc:ra_dav:version-url
+V 113
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Control/Pan.js
+END
+Snapping.js
+K 25
+svn:wc:ra_dav:version-url
+V 118
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Control/Snapping.js
+END
+KeyboardDefaults.js
+K 25
+svn:wc:ra_dav:version-url
+V 126
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Control/KeyboardDefaults.js
+END
+ZoomBox.js
+K 25
+svn:wc:ra_dav:version-url
+V 117
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Control/ZoomBox.js
+END
+MouseDefaults.js
+K 25
+svn:wc:ra_dav:version-url
+V 123
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Control/MouseDefaults.js
+END
+Graticule.js
+K 25
+svn:wc:ra_dav:version-url
+V 119
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Control/Graticule.js
+END
+ArgParser.js
+K 25
+svn:wc:ra_dav:version-url
+V 119
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Control/ArgParser.js
+END
+Button.js
+K 25
+svn:wc:ra_dav:version-url
+V 116
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Control/Button.js
+END
+MousePosition.js
+K 25
+svn:wc:ra_dav:version-url
+V 123
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Control/MousePosition.js
+END
+WMSGetFeatureInfo.js
+K 25
+svn:wc:ra_dav:version-url
+V 127
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Control/WMSGetFeatureInfo.js
+END
+TransformFeature.js
+K 25
+svn:wc:ra_dav:version-url
+V 126
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Control/TransformFeature.js
+END
+DragPan.js
+K 25
+svn:wc:ra_dav:version-url
+V 117
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Control/DragPan.js
+END
+SLDSelect.js
+K 25
+svn:wc:ra_dav:version-url
+V 119
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Control/SLDSelect.js
+END
+EditingToolbar.js
+K 25
+svn:wc:ra_dav:version-url
+V 124
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Control/EditingToolbar.js
+END
+DragFeature.js
+K 25
+svn:wc:ra_dav:version-url
+V 121
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Control/DragFeature.js
+END
+NavigationHistory.js
+K 25
+svn:wc:ra_dav:version-url
+V 127
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Control/NavigationHistory.js
+END
+ZoomToMaxExtent.js
+K 25
+svn:wc:ra_dav:version-url
+V 125
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Control/ZoomToMaxExtent.js
+END
+Attribution.js
+K 25
+svn:wc:ra_dav:version-url
+V 121
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Control/Attribution.js
+END
+ScaleLine.js
+K 25
+svn:wc:ra_dav:version-url
+V 119
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Control/ScaleLine.js
+END
+Measure.js
+K 25
+svn:wc:ra_dav:version-url
+V 117
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Control/Measure.js
+END
+ModifyFeature.js
+K 25
+svn:wc:ra_dav:version-url
+V 123
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Control/ModifyFeature.js
+END
+ZoomOut.js
+K 25
+svn:wc:ra_dav:version-url
+V 117
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Control/ZoomOut.js
+END
+SelectFeature.js
+K 25
+svn:wc:ra_dav:version-url
+V 123
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Control/SelectFeature.js
+END
+Split.js
+K 25
+svn:wc:ra_dav:version-url
+V 115
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Control/Split.js
+END
+NavToolbar.js
+K 25
+svn:wc:ra_dav:version-url
+V 120
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Control/NavToolbar.js
+END
+ZoomIn.js
+K 25
+svn:wc:ra_dav:version-url
+V 116
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Control/ZoomIn.js
+END

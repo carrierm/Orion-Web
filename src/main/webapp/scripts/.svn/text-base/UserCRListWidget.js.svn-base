@@ -1,0 +1,951 @@
+var store;
+var columnModel;
+var editorGrid;
+var displayWindow;
+
+var general_search;
+var CR_Key_Field;
+var CR_Key_SearchCriteria;
+var CR_Name_Field;
+var CR_Name_SearchCriteria;
+var Priority_Field;
+var Priority_SearchCriteria;
+var RespOrg_Field;
+var RespOrg_SearchCriteria;
+var StartDate_Field;
+var StartDate_SearchCriteria;
+var StopDate_Field;
+var StopDate_SearchCriteria;
+var descriptionField;
+var textToDisplay = '';
+var pageSizeLimit = 100; 
+var pageNumber = 1;
+var totalPages = 5;
+
+function selectAll() {
+	try {
+		var inputsHeader = document.getElementById("selectRowHeader");
+		var checked=inputsHeader.checked;
+		var inputs = document.getElementsByTagName("input");
+		for (var i = 0; i < inputs.length; i++) {
+			if (inputs[i].type == "checkbox" && inputs[i].id == "selectRow") {
+				inputs[i].checked=checked;
+			}
+		}
+		checkEnable();
+	} catch(err){
+		logger.debug("User CR List Widget: selectAll(): err: " + err);
+	}
+}
+
+function checkEnable() {
+	try {
+		var inputs = document.getElementsByTagName("input");
+		var checkedTrue=false;
+		var blnAllChecked = true;
+		for (var i = 0; i < inputs.length; i++) {
+			if (inputs[i].type == "checkbox" && inputs[i].id == "selectRow") {
+				if (!inputs[i].checked) {
+					blnAllChecked=false;
+					break;
+				}
+			}
+		}
+		for (var i = 0; i < inputs.length; i++) {
+			if (inputs[i].type == "checkbox" && inputs[i].checked && inputs[i].id == "selectRow") {
+				checkedTrue=true;
+				break;
+			}
+		}
+		if (blnAllChecked){
+			var inputsHeader = document.getElementById("selectRowHeader");
+			inputsHeader.checked=true;
+		} else {
+			var inputsHeader = document.getElementById("selectRowHeader");
+			inputsHeader.checked=false;
+		}
+		if (checkedTrue) {
+			Ext.getCmp('addToMapButton').enable();
+			Ext.getCmp('RemoveFromUserListButton').enable();
+		} else {
+			Ext.getCmp('addToMapButton').disable();
+			Ext.getCmp('RemoveFromUserListButton').disable();
+		}
+	} catch(err){
+		logger.debug("User CR List Widget: checkEnable(): err: " + err);
+	}
+}
+
+function displayFormWindow(){
+	try {
+		var inputs = document.getElementsByTagName("input");
+		var checked = [];
+		for (var i = 0; i < inputs.length; i++) {
+			if (inputs[i].type == "checkbox" && inputs[i].id == "selectRow") {
+			  if (inputs[i].checked) {
+				  checked.push("'" + inputs[i].name + "'");
+			  }
+		  }
+		}
+		if (checked.length == 0) {
+			alert('Please select CR\'s');
+		} else {
+			setSelectedCRs(checked);
+			lookupDisplayMapWidget();
+		}
+	} catch (err) {
+		logger.debug("User CR List Widget: displayFormWindow(): err: " + err);
+	}
+}
+
+function RemoveFromUserList() {
+	try {
+		var inputs = document.getElementsByTagName("input");
+		var checked = [];
+		for (var i = 0; i < inputs.length; i++) {
+			if (inputs[i].type == "checkbox" && inputs[i].id == "selectRow") {
+				if (inputs[i].checked) {
+					checked.push(inputs[i].name);
+				}
+			}
+		}
+		if (checked.length == 0) {
+			alert('Please select CR\'s');
+		} else {
+			setSelectedCRs(checked);
+			var result = updateUserCRList("DELETE");
+			if (result) {
+				store.loadData(getData());
+			} else {
+				alert( "Database Update Failed" );
+			}
+		}
+	} catch (err) {
+		logger.debug("User CR List Widget: RemoveFromUserList(): err: " + err);
+	}
+}
+
+function resetSearchFields() {
+	try {
+		CR_Key_Field = '';
+		CR_Key_SearchCriteria = '';
+		CR_Name_Field = '';
+		CR_Name_SearchCriteria = '';
+		Priority_Field = '';
+		Priority_SearchCriteria = '';
+		RespOrg_Field = '';
+		RespOrg_SearchCriteria = '';
+		StartDate_Field = '';
+		StartDate_SearchCriteria = '';
+		StopDate_Field = '';
+		StopDate_SearchCriteria = '';
+		general_search='';
+		
+		var form_general_search = Ext.getCmp('form_general_search');
+		if (form_general_search!=null) {
+			form_general_search.setValue("");
+		}
+		
+		textToDisplay = 'Displaying All CR List Data';
+		if (!descriptionField || descriptionField == null) {
+			descriptionField = Ext.getCmp('displayDescription');
+		}
+		if (descriptionField != null) {
+			descriptionField.update(textToDisplay);
+		}
+		
+		store.loadData(getData());
+	} catch(err){
+		logger.debug("User CR List Widget: resetSearchFields(): err: " + err);
+	}
+}
+
+function startAdvancedSearch(){
+	try {
+		var SearchForm;
+		var SearchWindow;
+		
+		var Search_CR_Key;
+		var combo_CR_Key;
+		
+		var Search_CR_Name;
+		var combo_CR_Name;
+		
+		var Search_Priority;
+		var combo_Priority;
+		
+		var Search_Resp_Org;
+		var combo_Resp_Org;
+		
+		var Search_StartDate;
+		var combo_StartDate;
+		
+		var Search_StopDate;
+		var combo_StopDate;
+		
+		function listSearch(){
+			try {
+				CR_Key_Field 				= '';
+				CR_Key_SearchCriteria 		= '';
+				CR_Name_Field 				= '';
+				CR_Name_SearchCriteria 		= '';
+				Priority_Field				= '';
+				Priority_SearchCriteria 	= '';
+				RespOrg_Field 				= '';
+				RespOrg_SearchCriteria 		= '';
+				StartDate_Field 			= '';
+				StartDate_SearchCriteria 	= '';
+				StopDate_Field 				= '';
+				StopDate_SearchCriteria 	= '';
+				general_search				= '';
+				
+				CR_Key_Field = checkCharacters(Search_CR_Key.getValue());	
+				CR_Key_SearchCriteria = combo_CR_Key.getValue();
+				
+				CR_Name_Field = checkCharacters(Search_CR_Name.getValue());
+				CR_Name_SearchCriteria = combo_CR_Name.getValue();		
+				
+				Priority_Field = checkCharacters(Search_Priority.getValue());
+				Priority_SearchCriteria = combo_Priority.getValue();
+				
+				RespOrg_Field = checkCharacters(Search_Resp_Org.getValue());
+				RespOrg_SearchCriteria = combo_Resp_Org.getValue();
+				
+				if(Search_StartDate.getValue() !== "") {
+					StartDate_Field = checkCharacters(Search_StartDate.getValue().format('Y-m-d'));
+					StartDate_SearchCriteria = combo_StartDate.getValue();;
+				}
+				
+				if(Search_StopDate.getValue() !== "") {
+					StopDate_Field = checkCharacters(Search_StopDate.getValue().format('Y-m-d'));
+					StopDate_SearchCriteria = combo_StopDate.getValue();
+				}
+				
+				if (!descriptionField || descriptionField == null) {
+					descriptionField = Ext.getCmp('displayDescription');
+				}
+				if (descriptionField != null) {
+					textToDisplay = 'Updating Filtered User CR List Data';
+					descriptionField.update(textToDisplay);
+				}
+				store.loadData(getData());
+				if (descriptionField != null) {
+					textToDisplay = 'Displaying Filtered User CR List Data';
+					descriptionField.update(textToDisplay);
+				}
+				SearchWindow.close();
+			} catch(err) {
+				logger.debug("User CR List Widget: listSearch(): err: " + err);
+			}
+		}
+
+		function resetSearch(){
+			SearchWindow.close();
+		}
+
+		Search_CR_Key = createTextField('CR Key', 350, '95%');
+		combo_CR_Key = createTextFieldDropDown('Filter Criteria', 'text-align:right;', 150, true);
+		
+		Search_CR_Name = createTextField('CR Name', 350, '95%');
+		combo_CR_Name = createTextFieldDropDown('Filter Criteria', 'text-align:right;', 150, true);
+		
+		Search_Priority = createTextField('CR Priority', 350, '95%');
+		combo_Priority = createNumericDropDown('Filter Criteria', 'text-align:right;', 150, true);
+		
+		Search_Resp_Org = createTextField('Resp. Org.', 350, '95%');
+		combo_Resp_Org = createTextFieldDropDown('Filter Criteria', 'text-align:right;', 150, true);
+		
+		Search_StartDate = createDateField('Start Date', 350, '95%');
+		combo_StartDate = createDateFieldDropDown('Filter Criteria', 'text-align:right;', 150, true);
+		
+		Search_StopDate = createDateField('Stop Date', 350, '95%');
+		combo_StopDate = createDateFieldDropDown('Filter Criteria', 'text-align:right;', 150, true);
+		
+		SearchForm = new Ext.FormPanel({
+			bodyStyle	: 'padding: 5px',
+			resizable	: false,
+			collapsible	: false,
+			x: 0, y: 0,
+			draggable	: false,
+			minimizable	: false,
+			autoScroll	: true,
+			autoDestroy	: true,
+			width		: 500,
+			height		: 1000,
+			items	: [{
+				layout	: 'form',
+				items	: [
+					{
+					   html		: 'Filter For Any Collection Requirements That Meet All Of The Specified Criteria',
+					   border	: false,
+					   cls		: 'x-form-item custom-label'
+					},
+			        {
+			        	xtype 	: 'container',layout : 'column', anchor : '100%', defaultType : 'field',
+			        	items   : [
+							{ xtype : 'container', layout : 'form', style: {"padding-top": '10px'}, items : [ Search_CR_Key ]},
+							{ xtype : 'container', layout : 'form', style: {"padding-top": '10px'}, items : [ combo_CR_Key ]}
+			        	]
+			        },
+			        {
+			        	xtype 	: 'container',layout : 'column', anchor : '100%', defaultType : 'field',
+			        	items 	: [
+			        	     { xtype : 'container', layout : 'form', style: {"padding-top": '10px'}, items : [ Search_CR_Name ]},
+			        	     { xtype : 'container', layout : 'form', style: {"padding-top": '10px'}, items : [ combo_CR_Name ]}
+			        	]
+			        },
+			        {
+			        	xtype 	: 'container',layout : 'column', anchor : '100%', defaultType : 'field',
+			        	items   : [
+			        	     { xtype : 'container', layout : 'form', style: {"padding-top": '10px'}, items : [ Search_Priority ]},
+						     { xtype : 'container', layout : 'form', style: {"padding-top": '10px'}, items : [ combo_Priority ]}
+						]
+			        },
+			        {
+			        	xtype 	: 'container',layout : 'column', anchor : '100%', defaultType : 'field',
+			        	items 	: [
+			        	     { xtype : 'container', layout : 'form', style: {"padding-top": '10px'}, items : [ Search_Resp_Org ]},
+			        	     { xtype : 'container', layout : 'form', style: {"padding-top": '10px'}, items : [ combo_Resp_Org ]}
+			        	]
+			        },
+			        {
+			        	xtype 	: 'container',layout : 'column', anchor : '100%', defaultType : 'field',
+			        	items  	: [
+			        	     { xtype : 'container', layout : 'form', style: {"padding-top": '10px'}, items : [ Search_StartDate ]},
+			        	     { xtype : 'container', layout : 'form', style: {"padding-top": '10px'}, items : [ combo_StartDate ]}
+			        	]
+			        },
+			        {
+			        	xtype 	: 'container',layout : 'column', anchor : '100%', defaultType : 'field',
+			        	items   : [
+			        	     { xtype : 'container', layout : 'form', style: {"padding-top": '10px'}, items : [ Search_StopDate ]},
+			        	     { xtype : 'container', layout : 'form', style: {"padding-top": '10px'}, items : [ combo_StopDate ]}
+			        	]
+			        }
+				]
+			}]
+		});
+
+		SearchWindow = new Ext.Window({
+			title		: 'Advanced Collection Requirement Search',
+			closable	: true,
+			width		: 725,
+			height		: 325,
+			plain		: true,
+			layout		: 'fit',
+			items		: SearchForm,
+			buttons	: [{
+				text	: 'Filter',
+				handler	: listSearch
+			},{
+				text	: 'Close',
+				handler	: resetSearch
+			}]
+		});
+
+		// once all is done, show the search window
+		SearchWindow.show();
+	} catch(err){
+		logger.debug("User CR List Widget: startAdvancedSearch(): err: " + err);
+	}
+} 
+
+function getData(config) {
+	try {
+		if (textToDisplay == '') {
+			textToDisplay = 'All User CR List Data';
+		} else if (textToDisplay != '') {
+			textToDisplay = '';
+		}
+		
+		var launchConfig;
+		if (config != null) {
+			launchConfig = config;
+		} else {
+			launchConfig = Ozone.launcher.WidgetLauncherUtils.getLaunchConfigData();
+		}
+		if(launchConfig == null) {
+			data = {channel: CHANNEL_NAME_userCollectionRequirments};
+			launchConfig = Ozone.util.toString(data);
+		}
+		
+		if (!launchConfig) {
+			var scope = this;
+			this.gadgetEventingController = new Ozone.eventing.Widget('rpc_relay.uncompressed.html', 
+				function() { 
+					scope.gadgetEventingController.subscribe.apply(scope, [ channelToUse, scope.update ]);
+					scope.update;
+				}
+			);
+		} else {
+			var data = Ozone.util.parseJson(launchConfig);
+			var channelToUse = data.channel;
+
+			var scope = this;
+			this.gadgetEventingController = new Ozone.eventing.Widget('rpc_relay.uncompressed.html', 
+				function() {
+					scope.gadgetEventingController.subscribe.apply(scope, [ channelToUse, scope.update ]);
+					scope.update;
+				}
+			);
+		}
+		
+		var url = "JSON/JSON_User_CR_List.jsp?pageNumber=" + pageNumber + "&pageSize=" + pageSizeLimit;
+		/*if (displayActiveResults) {
+			url += "&displayActiveResults=" + displayActiveResults;
+		}
+		if (displayInActiveResults) {
+			url += "&displayInActiveResults=" + displayInActiveResults;
+		}
+		if (displayEmphasizedResults) {
+			url += "&displayEmphasizedResults=" + displayEmphasizedResults;
+		}
+		if (displayUnEmphasizedResults) {
+			url += "&displayUnEmphasizedResults=" + displayUnEmphasizedResults;
+		}
+		if (displayNoImagesCollectedResults) {
+			url += "&displayNoImagesCollectedResults=" + displayNoImagesCollectedResults;
+		}
+		if (displayImagesCollectedResults) {
+			url += "&displayImagesCollectedResults=" + displayImagesCollectedResults;
+		}
+		if (displayNoImagesRemainingResults) {
+			url += "&displayNoImagesRemainingResults=" + displayNoImagesRemainingResults;
+		}
+		if (displayImagesRemainingResults) {
+			url += "&displayImagesRemainingResults=" + displayImagesRemainingResults;
+		}*/
+		if (general_search != null && general_search != '') {
+			url += "&general_search='" + general_search + "'";
+		}
+		if (CR_Key_Field != null && CR_Key_Field != '') {
+			url += "&cr_key='" + CR_Key_Field + "'";
+			url += "&cr_key_criteria='" + CR_Key_SearchCriteria + "'";
+		}
+		if (CR_Name_Field != null && CR_Name_Field != '') {
+			url += "&cr_name='" + CR_Name_Field + "'";
+			url += "&cr_name_criteria='" + CR_Name_SearchCriteria + "'";
+		}
+		if (Priority_Field != null && Priority_Field != '') {
+			url += "&cr_priority='" + Priority_Field + "'";
+			url += "&cr_priority_criteria='" + Priority_SearchCriteria + "'";
+		}
+		if (RespOrg_Field != null && RespOrg_Field != '') {
+			url += "&cr_respOrg='" + RespOrg_Field + "'";
+			url += "&cr_respOrg_criteria='" + RespOrg_SearchCriteria + "'";
+		}
+		if (StartDate_Field != null && StartDate_Field != '') {
+			url += "&startDate='" + StartDate_Field + "'";
+			url += "&startDate_criteria='" + StartDate_SearchCriteria + "'";
+		}
+		if (StopDate_Field != null && StopDate_Field != '') {
+			url += "&stopDate='" + StopDate_Field + "'";
+			url += "&stopDate_criteria='" + StopDate_SearchCriteria + "'";
+		}
+		
+		if (textToDisplay == '') {
+			textToDisplay = 'All User CR List Data';
+		}
+		
+		if (!descriptionField || descriptionField == null) {
+			descriptionField = Ext.getCmp('displayDescription');
+		}
+		if (descriptionField != null) {
+			descriptionField.update('Updating User CR List');
+		}
+		var responseVal = postURL(url,null);
+		
+		if (descriptionField != null) {
+			descriptionField.update('Displaying User CR List');
+		}
+		
+		return eval(trim(responseVal));
+	} catch (err) {
+		logger.debug("User CR List Widget: getData(): err: " + err);
+	}
+}
+
+function drawGridObject(configString) {
+	try {
+		Ext.app.SearchField = Ext.extend(Ext.form.TwinTriggerField, {
+		    initComponent : function(){
+		        Ext.app.SearchField.superclass.initComponent.call(this);
+		        this.on('specialkey', function(f, e){
+		            if(e.getKey() == e.ENTER){
+		                this.onTrigger2Click();
+		            }
+		        }, this);
+		    },
+		    id				: 'form_general_search',
+		    validationEvent	: false,
+		    validateOnBlur	: false,
+		    trigger1Class	: 'x-form-clear-trigger',
+		    trigger2Class	: 'x-form-search-trigger',
+		    hideTrigger1	: true,
+		    width			: 250,
+		    hasSearch 		: false,
+		    paramName 		: 'query',
+
+		    onTrigger1Click : function(){
+		    	this.setValue('');
+		    	this.triggers[0].hide();
+		    	CR_Key_Field 				= '';
+				CR_Key_SearchCriteria 		= '';
+				CR_Name_Field 				= '';
+				CR_Name_SearchCriteria 		= '';
+				Priority_Field				= '';
+				Priority_SearchCriteria 	= '';
+				RespOrg_Field 				= '';
+				RespOrg_SearchCriteria 		= '';
+				StartDate_Field 			= '';
+				StartDate_SearchCriteria 	= '';
+				StopDate_Field 				= '';
+				StopDate_SearchCriteria 	= '';
+				general_search				= '';
+				
+		    	if (!descriptionField || descriptionField == null) {
+					descriptionField = Ext.getCmp('displayDescription');
+				}
+		    	if (descriptionField != null) {
+		    		textToDisplay = 'Displaying All User CR List Data';
+		    		descriptionField.update(textToDisplay);
+		    	}
+		        store.loadData(getData());
+		    },
+
+		    onTrigger2Click : function(){
+		    	var v = checkCharacters(this.getRawValue());
+		        if(v.length < 1){
+		            this.onTrigger1Click();
+		            return;
+		        }
+		        CR_Key_Field 				= '';
+				CR_Key_SearchCriteria 		= '';
+				CR_Name_Field 				= '';
+				CR_Name_SearchCriteria 		= '';
+				Priority_Field				= '';
+				Priority_SearchCriteria 	= '';
+				RespOrg_Field 				= '';
+				RespOrg_SearchCriteria 		= '';
+				StartDate_Field 			= '';
+				StartDate_SearchCriteria 	= '';
+				StopDate_Field 				= '';
+				StopDate_SearchCriteria 	= '';
+				general_search				= '';
+				
+		        general_search = v;
+		        this.triggers[0].show();
+		        
+		        if (!descriptionField || descriptionField == null) {
+					descriptionField = Ext.getCmp('displayDescription');
+				}
+		        if (descriptionField != null) {
+		        	textToDisplay = 'Displaying General Filtered User CR List Data For Term: ' + general_search;
+		        	descriptionField.update(textToDisplay);
+		        }
+		        store.loadData(getData());
+		    }
+		});
+		
+		store = new Ext.data.Store({
+			pageSize: pageSizeLimit,
+			autoLoad: {params:{start:0, limit:pageSizeLimit}},
+			proxy: new Ext.data.MemoryProxy(getData(configString)),
+			reader: new Ext.data.ArrayReader({}, [
+              {name: 'cr_key'},
+              {name: 'cr_name'},
+              {name: 'cr_priority'},
+              {name: 'resp_org'},
+              {name: 'start_dateTime'},
+              {name: 'stop_dateTime'},
+              {name: 'success'}
+              ]),
+            sortInfo:{field: 'cr_key', direction: "ASC"}
+		});
+		
+		columnModel = new Ext.grid.ColumnModel(
+			[
+			 new Ext.grid.RowNumberer({width: 30}),
+			 {
+				 header			: '<input id="selectRowHeader" type="checkbox" onClick="selectAll();"/>',
+				 align			: 'center',
+				 dataIndex		: 'cr_key',
+				 menuDisabled	: true,
+				 sortable 		: false,
+				 width			: 25,        
+				 renderer		: function(val, x, store) {
+					 return '<div class=\"cellContent\"><input id="selectRow" onClick="checkEnable();" type="checkbox" name="' + val + '"/></div>';
+				 }
+			 }, {
+				 header     : 'CR Key',
+				 width     	: 150,
+				 align		: 'center',
+				 sortable 	: true,
+				 dataIndex	: 'cr_key',
+				 style		: {"text-align": 'center'},
+				 editor		: new Ext.form.TextField({
+					 readOnly	: true,
+					 editable	: false
+		        }),
+				 renderer	:  function(val, x, store) {
+					 return '<div class=\"cellContent\">' + val + '</div>';
+				 }
+			 }, {
+				 header     : 'CR Name',
+				 width	 	: 150,
+				 sortable 	: true,
+				 align		: 'center',
+				 dataIndex	: 'cr_name',
+				 style		: {"text-align": 'center'},
+				 editor		: new Ext.form.TextField({
+					 readOnly	: true,
+					 editable	: false
+		        }),
+				 renderer	:  function(val, x, store) {
+					 return '<div class=\"cellContent\">' + val + '</div>'; 
+				 }
+			 }, {
+				 header     : 'Priority',
+				 width    	: 75,
+				 sortable 	: true,
+				 align		: 'center',
+				 dataIndex	: 'cr_priority',
+				 style		: {"text-align": 'center'},
+				 editor		: new Ext.form.TextField({
+					 readOnly	: true,
+					 editable	: false
+		        }),
+				 renderer	:  function(val, x, store) {
+					 return '<div class=\"cellContent\">' + val + '</div>'; 
+				 }
+			 },
+			 {
+				 header     : 'Responsible Org',
+				 width    	: 150,
+				 sortable 	: true,
+				 align		: 'center',
+				 dataIndex	: 'resp_org',
+				 style		: {"text-align": 'center'},
+				 editor		: new Ext.form.TextField({
+					 readOnly	: true,
+					 editable	: false
+		        }),
+				 renderer	:  function(val, x, store) {
+					 return '<div class=\"cellContent\">' + val + '</div>'; 
+				 }
+			 }, {
+				 header     : 'Start Date',
+				 width    	: 150,
+				 sortable 	: true,
+				 align		: 'center',
+				 dataIndex	: 'start_dateTime',
+				 style		: {"text-align": 'center'},
+				 editor		: new Ext.form.TextField({
+					 readOnly	: true,
+					 editable	: false
+		        }),
+				 renderer	:  function(val, x, store) {
+					 return '<div class=\"cellContent\">' + val + '</div>'; 
+				 }
+			 }, {
+				 header    	: 'Stop Date',
+				 width    	: 150,
+				 sortable 	: true,
+				 align		: 'center',
+				 dataIndex	: 'stop_dateTime',
+				 style		: {"text-align": 'center'},
+				 editor		: new Ext.form.TextField({
+					 readOnly	: true,
+					 editable	: false
+		        }),
+				 renderer	:  function(val, x, store) {
+					 return '<div class=\"cellContent\">' + val + '</div>'; 
+				 }
+			 }, {
+				 header     : 'More Details',
+				 tooltip	: 'View More Details About This CR',
+				 width    	: 75,
+				 sortable 	: true,
+				 align		: 'center',
+				 dataIndex	: 'cr_key',
+				 style		: {"text-align": 'center'},
+				 renderer	:  function(val, x, store) {
+					 return '<div class=\"cellContent\"><img src="../images/details_icon.gif" alt="View More Details About This CR" align=\"middle\" onClick="getAllCRWidgetDetails({cr_key: \'' + store.data.cr_key + '\'});"  /></div>'; 
+				 }
+			 }, {
+				 header     : 'View Targets',
+				 tooltip	: 'View All Targets In This CR',
+				 width    	: 75,
+				 sortable 	: true,
+				 align		: 'center',
+				 dataIndex	: 'cr_key',
+				 style		: {"text-align": 'center'},
+				 renderer	:  function(val, x, store) {
+					 return '<div class=\"cellContent\"><img src="../resources/images/target.png" alt="View All Targets Associated With This CR" align=\"middle\" onClick="getTargets({cr_key: \'' + store.data.cr_key + '\'});"  /></div>'; 
+				 }
+			 }, {
+				 header     : 'View Requests',
+				 tooltip	: 'View All Target Collection Requests Associated With This CR',
+				 width    	: 85,
+				 sortable 	: true,
+				 align		: 'center',
+				 dataIndex	: 'cr_key',
+				 style		: {"text-align": 'center'},
+				 renderer	:  function(val, x, store) {
+					 return '<div class=\"cellContent\"><img src="../images/clock_small.png" alt="View All Target Collection Requests Associated With This CR" align=\"middle\" onClick="getTargetCollectionRequests({cr_key: \'' + store.data.cr_key + '\'});"  /></div>'; 
+				 }
+			 }]
+		);
+		/*var menu = new Ext.menu.Menu({
+	        id: 'mainMenu',
+	        style: { overflow: 'visible' },
+	        items: [
+	            {
+	                text: 'Target Status',
+	                menu: {
+	                    items: [
+	                        {
+	                            text: 'Active Targets',
+	                            checked: displayActiveResults,
+	                            checkHandler: function(item, checked) {
+	                            	displayActiveResults = checked;
+	                            	store.loadData(getData());
+	                            }
+	                        }, {
+	                            text: 'In-Active Targets',
+	                            checked: displayInActiveResults,
+	                            checkHandler: function(item, checked) {
+	                            	displayInActiveResults = checked;
+	                            	store.loadData(getData());
+	                            }
+	                        }
+	                    ]
+	                }
+	            }, {
+	                text: 'Target Emphasis',
+	                menu: {
+	                    items: [
+	                        {
+	                            text: 'Emphasized Targets',
+	                            checked: displayEmphasizedResults,
+	                            checkHandler: function(item, checked) {
+	                            	displayEmphasizedResults = checked;
+	                            	store.loadData(getData());
+	                            }
+	                        }, {
+	                            text: 'Not-Emphasized Targets',
+	                            checked: displayUnEmphasizedResults,
+	                            checkHandler: function(item, checked) {
+	                            	displayUnEmphasizedResults = checked;
+	                            	store.loadData(getData());
+	                            }
+	                        }
+	                    ]
+	                }
+	            }, {
+	                text: 'Images Collected',
+	                menu: {
+	                    items: [
+	                        {
+	                            text: '0',
+	                            checked: displayNoImagesCollectedResults,
+	                            checkHandler: function(item, checked) {
+	                            	displayNoImagesCollectedResults = checked;
+	                            	store.loadData(getData());
+	                            }
+	                        }, {
+	                            text: '1+',
+	                            checked: displayImagesCollectedResults,
+	                            checkHandler: function(item, checked) {
+	                            	displayImagesCollectedResults = checked;
+	                            	store.loadData(getData());
+	                            }
+	                        }
+	                    ]
+	                }
+	            }, {
+	                text: 'Images Remaining',
+	                menu: {
+	                    items: [
+	                        {
+	                            text: '0',
+	                            checked: displayNoImagesRemainingResults,
+	                            checkHandler: function(item, checked) {
+	                            	displayNoImagesRemainingResults = checked;
+	                            	store.loadData(getData());
+	                            }
+	                        }, {
+	                            text: '1+',
+	                            checked: displayImagesRemainingResults,
+	                            checkHandler: function(item, checked) {
+	                            	displayImagesRemainingResults = checked;
+	                            	store.loadData(getData());
+	                            }
+	                        }
+	                    ]
+	                }
+	            }
+	        ]
+	    });*/
+		
+		editorGrid =  new Ext.grid.EditorGridPanel({
+			id				: 'editorGrid',
+			store			: store,
+			sm		: new Ext.grid.RowSelectionModel({
+                singleSelect: true,
+                multiSelect: true,
+                listeners: {
+                     rowselect: function(smObj, rowIndex, record) {
+                         selRecordStore = record;
+                    }
+               }
+            }),
+			cm				: columnModel,
+			enableDragDrop	: true,
+			stripeRows		: true,
+			clicksToEdit	: 1,
+			bbar: new Ext.PagingToolbar({
+	            pageSize	: pageSizeLimit,
+	            store		: store,
+	            displayInfo	: true,
+	            displayMsg	: 'Displaying CR Records {0} - {1} of {2}',
+				emptyMsg	: 'No CR Records To Display',
+	            items:[
+	                '-',
+		            {
+					    xtype: 'tbbutton',
+					    cls: 'x-btn-icon',
+					    icon : '../images/feedback_icon_small.jpg',
+					    tooltip	: 'Provide Feedback About This Form',
+					    width:30,
+					    handler: function() {
+					    	createFeedbackForm('User CR List');
+					    }
+					}, '-',
+					{
+						   html: '<p>Displaying All User CR List Data</p>',
+						   id: 'displayDescription'
+					}
+	            ]
+	        }),
+			tbar: [
+			       	{
+		            	text		: 'Add To Map',
+		       			iconCls		: 'map-add',
+		       			tooltip		: 'Add The Selected CR\'s to the Map',
+		       			id			: 'addToMapButton',
+		       			disabled	: true,
+		       			cls			: 'x-form-toolbar-standardButton',
+		       			handler		: displayFormWindow
+			       	}, 	'-', {
+			       		text		: 'Remove From User List',
+			       		iconCls		: 'userList-delete',
+			       		tooltip		: 'Remove The Selected CR\'s to User List',
+			       		id			: 'RemoveFromUserListButton',
+			       		disabled	: true,
+			       		cls			: 'x-form-toolbar-standardButton',
+			       		handler		: RemoveFromUserList
+				    }, /*'-', {
+			            text:'Filter',
+			            iconCls: 'bmenu',
+			            menu: menu
+				    }, */'-', {
+				    	text		: 'Adv. Filter',
+				    	tooltip		: 'Advanced Filter',
+				    	handler		: startAdvancedSearch,   
+				    	iconCls		: 'search'
+			       	}, 
+			       	'-', 
+			       	new Ext.app.SearchField({
+			    	   store : store,
+			    	   width : 250
+			       	}), {
+			       		text	: 'Clear Filter Criteria',
+				    	tooltip	: 'Remove Filter Criteria',
+				    	handler	: resetSearchFields,   
+				    	iconCls	:'search'
+			       	}
+			     ]
+		});    
+		descriptionField = Ext.getCmp('displayDescription');
+		
+		function onEditorGridContextMenu(grid, rowIndex, e){
+			e.stopEvent();
+		    var coords = e.getXY();
+		    GridRowContextMenu.rowRecord = grid.store.getAt(rowIndex);
+		    grid.selModel.selectRow(rowIndex);
+		    GridRowContextMenu.showAt([coords[0], coords[1]]);
+		}
+
+		GridRowContextMenu = new Ext.menu.Menu({
+		      id: 'GridRowContextMenu',
+		      items: [
+		          { text: 'More Details',  iconCls:'view-details', 				 handler: function() { getAllCRWidgetDetails({cr_key:GridRowContextMenu.rowRecord.get('cr_key')}); }},
+		          { text: 'View Targets',  iconCls:'view-details', 				 handler: function() { getTargets({cr_key:GridRowContextMenu.rowRecord.get('cr_key')}); }},
+		          { text: 'View Requests', iconCls:'target_collection_requests', handler: function() { getTargetCollectionRequests({cr_key:GridRowContextMenu.rowRecord.get('cr_key')}); }},
+		          '-',
+		          { text: 'Add To Map', iconCls:'map-add', handler: function() {
+		        	  var checked = new Array();
+		        	  checked.push('\'' + GridRowContextMenu.rowRecord.get('cr_key') + '\'');
+		        	  setSelectedCRs(checked);
+		        	  lookupDisplayMapWidget();
+		          }},
+		          { text: 'Remove From User List', iconCls:'userList-delete', handler: function() {
+		        	  var checked = new Array();
+		        	  checked.push(GridRowContextMenu.rowRecord.get('cr_key'));
+		        	  setSelectedCRs(checked);
+		        	  var result = updateUserCRList("DELETE");
+		        	  if (result) {
+		        		  lookupUserCRListWidget();
+		        	  } else {
+		        		  alert( "Database Insert Failed" );
+		        	  }
+		          }}
+		      ]
+		 });
+		editorGrid.addListener('rowcontextmenu', onEditorGridContextMenu);
+		
+		displayWindow = new Ext.Viewport({
+			id			: 'displayWindow',
+			title		: 'User Collection Requests',
+			closable	: false,
+			width		: 1100,
+			height		: 650,
+			resizable	: false,
+			collapsible	: false,
+			x: 0, y: 0,
+			draggable	: false,
+			minimizable	: false,
+			iconCls		: 'collection_icon',
+			plain		: true,
+			layout		: 'fit',
+			items		: editorGrid
+		});
+		store.load();
+		displayWindow.show();
+	} catch (err) {
+		logger.debug("User CR List Widget: drawGridObject(): err: " + err);
+	}  
+}
+
+var update = function(sender, msg) {
+	try {
+		logger.debug('User CR List Widget :: MSG :' + msg );
+		if (!descriptionField || descriptionField == null) {
+			descriptionField = Ext.getCmp('displayDescription');
+		}
+		if (descriptionField != null) {
+			textToDisplay = 'Updating User CR List Data';
+			descriptionField.update(textToDisplay);
+		}
+		
+		store.loadData(getData(msg));
+	} catch(err) {
+		logger.debug("User CR List Widget: update(): err: " + err);
+	}
+}
+
+Ext.onReady(function(){
+	Ext.QuickTips.init();
+	drawGridObject();
+});

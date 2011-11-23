@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts-config PUBLIC 
+"-//Apache Software Foundation//DTD Struts Configuration 1.2//EN" 
+"http://jakarta.apache.org/struts/dtds/struts-config_1_2.dtd">
+
+<struts-config>
+
+	<form-beans>
+		<form-bean name="gridViewForm"  			type="mil.oni.jdiss.form.GridViewForm"/>
+		<form-bean name="chartViewForm"     		type="mil.oni.jdiss.form.ChartViewForm"/>
+		<form-bean name="lineViewForm"     			type="mil.oni.jdiss.form.LineViewForm"/>
+		<form-bean name="openLayersDisplayMapForm"  type="mil.oni.jdiss.form.OpenLayersDisplayMapForm"/>
+		<form-bean name="googleEarthDisplayMap"		type="mil.oni.jdiss.form.GoogleEarthDisplayMapForm"/>
+	</form-beans>
+
+	<action-mappings>
+		<action path="/GridView" type="mil.oni.jdiss.action.GridViewAction" name="gridViewForm">
+			<forward name="success" path="/pages/GridView.jsp"/>
+		</action>
+		
+		<action path="/ChartView" type="mil.oni.jdiss.action.ChartViewAction" name="chartViewForm">
+			<forward name="success" path="/pages/ChartView.jsp"/>
+		</action>
+		
+		<action path="/LineView" type="mil.oni.jdiss.action.LineViewAction" name="lineViewForm">
+			<forward name="success" path="/pages/LineView.jsp"/>
+		</action>
+		
+		<action path="/OpenLayersDisplayMap" type="mil.oni.jdiss.action.OpenLayersDisplayMapAction" name="openLayersDisplayMapForm">
+			<forward name="success" path="/pages/openLayersDisplayMap.jsp"/>
+		</action>
+		
+		<action path="/GoogleEarthDisplayMap" type="mil.oni.jdiss.action.GoogleEarthDisplayMapAction" name="googleEarthDisplayMap">
+			<forward name="success" path="/pages/googleEarthDisplayMap.jsp"/>
+		</action>
+	</action-mappings>
+</struts-config>

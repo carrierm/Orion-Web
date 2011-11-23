@@ -1,0 +1,65 @@
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/ext-4.0.2a/src/direct
+END
+RemotingEvent.js
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/ext-4.0.2a/src/direct/RemotingEvent.js
+END
+RemotingMethod.js
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/ext-4.0.2a/src/direct/RemotingMethod.js
+END
+PollingProvider.js
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/ext-4.0.2a/src/direct/PollingProvider.js
+END
+RemotingProvider.js
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/ext-4.0.2a/src/direct/RemotingProvider.js
+END
+Provider.js
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/ext-4.0.2a/src/direct/Provider.js
+END
+Transaction.js
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/ext-4.0.2a/src/direct/Transaction.js
+END
+Manager.js
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/ext-4.0.2a/src/direct/Manager.js
+END
+ExceptionEvent.js
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/ext-4.0.2a/src/direct/ExceptionEvent.js
+END
+Event.js
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/ext-4.0.2a/src/direct/Event.js
+END
+JsonProvider.js
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/ext-4.0.2a/src/direct/JsonProvider.js
+END

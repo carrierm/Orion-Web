@@ -1,0 +1,137 @@
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts
+END
+targetCollectionRequestsWidget.js
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/targetCollectionRequestsWidget.js
+END
+MultiSelect.js
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/MultiSelect.js
+END
+2gdb_eventing.js
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/2gdb_eventing.js
+END
+targetListWidget.js
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/targetListWidget.js
+END
+ItemSelector.js
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/ItemSelector.js
+END
+userPreferencesWidget.js
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/userPreferencesWidget.js
+END
+crListWidget.js
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/crListWidget.js
+END
+communicationAgent.js
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/communicationAgent.js
+END
+bootstrap.js
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/bootstrap.js
+END
+exporting.js
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/exporting.js
+END
+targetCollectionHistoryWidget.js
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/targetCollectionHistoryWidget.js
+END
+NavigationMap.js
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/NavigationMap.js
+END
+RowEditor.js
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/RowEditor.js
+END
+widget-language-constants.js
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/widget-language-constants.js
+END
+UserTargetListWidget.js
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/UserTargetListWidget.js
+END
+databrokerTagMgmtWidget.js
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/databrokerTagMgmtWidget.js
+END
+UserCRListWidget.js
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/UserCRListWidget.js
+END
+ext-all-debug.js
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/ext-all-debug.js
+END
+OpenLayersHelper.js
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayersHelper.js
+END
+array-grid.js
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/array-grid.js
+END
+owf-widget-debug.js
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/owf-widget-debug.js
+END
+owf-widget-min.js
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/owf-widget-min.js
+END

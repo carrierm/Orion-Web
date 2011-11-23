@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 109
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Symbolizer
+END
+Line.js
+K 25
+svn:wc:ra_dav:version-url
+V 117
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Symbolizer/Line.js
+END
+Point.js
+K 25
+svn:wc:ra_dav:version-url
+V 118
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Symbolizer/Point.js
+END
+Text.js
+K 25
+svn:wc:ra_dav:version-url
+V 117
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Symbolizer/Text.js
+END
+Raster.js
+K 25
+svn:wc:ra_dav:version-url
+V 119
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Symbolizer/Raster.js
+END
+Polygon.js
+K 25
+svn:wc:ra_dav:version-url
+V 120
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Symbolizer/Polygon.js
+END

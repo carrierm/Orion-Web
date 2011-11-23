@@ -1,0 +1,1134 @@
+var store;
+var columnModel;
+var editorGrid;
+var displayWindow;
+var descriptionField;
+var textToDisplay = '';
+var general_search;
+var Target_Key_Field;
+var Target_Key_SearchCriteria;
+var Target_ID_Field;
+var Target_ID_SearchCriteria;
+var Target_Name_Field;
+var Target_Name_SearchCriteria;
+var Target_Type_Field;
+var Target_Type_SearchCriteria;
+var Prism_ID_Field;
+var Prism_ID_SearchCriteria;
+var Tags_Field;
+var Tags_SearchCriteria;
+var listeningForUpdates = true;
+var pageSizeLimit = 100; 
+var pageNumber = 1;
+
+function selectAll() {
+	try {
+		var inputsHeader = document.getElementById("selectRowHeader");
+		var checked=inputsHeader.checked;
+		var inputs = document.getElementsByTagName("input");
+		for (var i = 0; i < inputs.length; i++) {
+			if (inputs[i].type == "checkbox" && inputs[i].id == "selectRow") {
+				inputs[i].checked=checked;
+			}
+		}
+		checkEnable();
+	} catch(err) {
+		logger.debug("User Target List Widget: selectAll(): err: " + err);
+	}
+}
+
+function checkEnable() {
+	try {
+		var inputs = document.getElementsByTagName("input");
+		var checkedTrue=false;
+		var blnAllChecked = true;
+		for (var i = 0; i < inputs.length; i++) {
+			if (inputs[i].type == "checkbox" && inputs[i].id == "selectRow") {
+				if (!inputs[i].checked) {
+					blnAllChecked=false;
+					break;
+				}
+			}
+		}
+		for (var i = 0; i < inputs.length; i++) {
+			if (inputs[i].type == "checkbox" && inputs[i].checked && inputs[i].id == "selectRow") {
+				checkedTrue=true;
+				break;
+			}
+		}
+		if (blnAllChecked){
+			var inputsHeader = document.getElementById("selectRowHeader");
+			inputsHeader.checked=true;
+		} else {
+			var inputsHeader = document.getElementById("selectRowHeader");
+			inputsHeader.checked=false;
+		}
+		if (checkedTrue) {
+			Ext.getCmp('addToMapButton').enable();
+			Ext.getCmp('RemoveFromUserListButton').enable();
+			Ext.getCmp('updateTargetTagsButton').enable();
+		} else {
+			Ext.getCmp('addToMapButton').disable();
+			Ext.getCmp('RemoveFromUserListButton').disable();
+			Ext.getCmp('updateTargetTagsButton').disable();
+		}
+	} catch(err){
+		logger.debug("User Target List Widget: checkEnable(): err: " + err);
+	}
+}
+
+function getTagData(showAllUserTagValues, target_key) {
+	try {
+		var url = "JSON/JSON_UserTarget_Tags.jsp?ACTION='QUERYLIST'";
+		if (showAllUserTagValues != null) {
+			url += "&showAllUserTagValues='" + showAllUserTagValues + "'";
+		}
+		if (target_key != null) {
+			url += "&targetList='" + target_key + "'";
+		}
+		logger.debug('url: ' + url);
+		var responseVal = postURL(url,null);
+		var result = eval(trim(responseVal));
+	
+		var myData = new Array();
+		for (i = 0; i < result.length; i++) {
+			myData.push(result[i]);
+		}
+		
+		return myData;
+	} catch(err){
+		logger.debug("User Target List Widget: getTagData(): err: " + err);
+	}
+}
+
+function updateUserTargetTags() {
+	try {
+		logger.debug('updateUserTargetTags');
+		var inputs = document.getElementsByTagName("input");
+		var checked = [];
+		for (var i = 0; i < inputs.length; i++) {
+			if (inputs[i].type == "checkbox" && inputs[i].id == "selectRow") {
+				if (inputs[i].checked) {
+					checked.push(inputs[i].name);
+				}
+			}
+		}
+		if (checked.length == 0) {
+			alert('Please select Targets\'s');
+		} else {
+			openEditTagsWindow(checked);
+		}
+	} catch (err) {
+		logger.debug("User Target List Widget: updateUserTargetTags(): err: " + err);
+	}
+}
+
+function openEditTagsWindow(checked) {
+	try {
+		logger.debug('openEditTagsWindow: ' + checked);
+		var TagsWindow;
+		var Tag_Input_TextField;
+		var combo_Current_Tags;
+		var combo_All_Target_Tags;
+		var selectTagButton;
+		var addTagButton;
+		var deleteTagButton;
+		var TagsForm;
+		var user_target_pk = '';
+		
+		function removeUserTag() {
+			try {
+				var deleteConfirm = confirm("Are You Sure You Want To Delete The Tag: [" + combo_Current_Tags.getRawValue() + "]?");
+				if (deleteConfirm) {
+					var url = "JSON/JSON_UserTarget_Tags.jsp?ACTION='DELETE_DATABROKER_TAG_REL'";
+					if (combo_Current_Tags.getRawValue() != null) {
+						url += "&tag_value='" + combo_Current_Tags.getRawValue() + "'";
+					}
+					if (combo_Current_Tags.getValue() != null) {
+						url += "&tags_pk='" + combo_Current_Tags.getValue() + "'";
+					}
+					if (checked != null) {
+						url += "&targetList='" + checked + "'";
+					}
+					logger.debug('url: ' + url);
+					var responseVal = postURL(url,null);
+					logger.debug('responseVal: ' + responseVal);
+					var result = eval(trim(responseVal));
+					logger.debug('result: ' + result);
+					if (result == 'success') {
+						alert("Tag Was Successfully Deleted");
+					} else {
+						alert("There Was An Error In Deleting The Specified Tag. Please Contact Your System Administrator For Further Assistance");
+					}
+					combo_Current_Tags.store.loadData(getTagData(false, checked));
+					combo_Current_Tags.setValue(combo_Current_Tags.store.collect('searchType', true)[0]);
+					
+					combo_All_Target_Tags.store.loadData(getTagData(true, checked));
+					combo_All_Target_Tags.setValue(combo_All_Target_Tags.store.collect('searchType', true)[0]);
+				}
+			} catch(err) {
+				logger.debug("User Target List Widget: removeUserTag(): err: " + err);
+			}
+		}
+	
+		function selectUserTag() {
+			try {
+				var url = "JSON/JSON_UserTarget_Tags.jsp?ACTION='INSERT_DATABROKER_TAG'";
+				if (combo_All_Target_Tags.getRawValue() != null) {
+					url += "&tag_value='" + combo_All_Target_Tags.getRawValue() + "'";
+				}
+				if (combo_All_Target_Tags.getValue() != null) {
+					url += "&tags_pk='" + combo_All_Target_Tags.getValue() + "'";
+				}
+				if (user_target_pk != null) {
+					url += "&user_target_pk='" + user_target_pk + "'";
+				}
+				if (checked != null) {
+					url += "&targetList='" + checked + "'";
+				}
+				logger.debug('url: ' + url);
+				var responseVal = postURL(url,null);
+				//logger.debug('responseVal: ' + responseVal);
+				var result = eval(trim(responseVal));
+				//logger.debug('result: ' + result);
+				if (result == 'success') {
+					alert("Tag Was Successfully Added");
+				} else {
+					alert("There Was An Error In Adding The Specified Tag. Please Contact Your System Administrator For Further Assistance");
+				}
+				combo_Current_Tags.store.loadData(getTagData(false, checked));
+				combo_Current_Tags.setValue(combo_Current_Tags.store.collect('searchType', true)[0]);
+				
+				combo_All_Target_Tags.store.loadData(getTagData(true, checked));
+				combo_All_Target_Tags.setValue(combo_All_Target_Tags.store.collect('searchType', true)[0]);
+			} catch(err) {
+				logger.debug("User Target List Widget: selectUserTag(): err: " + err);
+			}
+		}
+	
+		function saveTagUpdate() {
+			try {
+				if (trim(Tag_Input_TextField.getValue()) == '') {
+					alert("Please specify a tag value");
+				} else {
+					logger.debug('checked: ' + checked);
+					
+					var url = "JSON/JSON_UserTarget_Tags.jsp?ACTION='INSERT_DATABROKER_TAG'";
+					url += "&tag_value='" + Tag_Input_TextField.getValue() + "'";
+					if (checked != null) {
+						url += "&targetList='" + checked + "'";
+					}
+					var responseVal = postURL(url,null);
+					var result = eval(trim(responseVal));
+					if (result != '') {
+						alert("Tag Was Successfully Added");
+					} else {
+						alert("There Was An Error In Adding The Specified Tag. Please Contact Your System Administrator For Further Assistance");
+					}
+					Tag_Input_TextField.setValue("");
+					
+					combo_Current_Tags.store.loadData(getTagData(false, checked));
+					combo_Current_Tags.setValue(combo_Current_Tags.store.collect('searchType', true)[0]);
+					
+					combo_All_Target_Tags.store.loadData(getTagData(true, checked));
+					combo_All_Target_Tags.setValue(combo_All_Target_Tags.store.collect('searchType', true)[0]);
+				}
+			} catch(err) {
+				logger.debug("User Target List Widget: saveTagUpdate(): err: " + err);
+			}
+		}
+		
+		function cancelTagUpdate() {
+			try {
+				TagsWindow.hide();
+			} catch(err) {
+				logger.debug("User Target List Widget: cancelTagUpdate(): err: " + err);
+			}
+		}
+		var currentAllTargetTags = getTagData(true, checked);
+		var currentUserTags = getTagData(false, checked);
+		
+		Tag_Input_TextField = createTextField('Tag Value', 265, '95%');
+		Tag_Input_TextField.maxLength = 30;
+		
+		combo_Current_Tags = createCustomDataDropDown(currentUserTags, 'Your Tags', '', 225, true);
+		combo_All_Target_Tags = createCustomDataDropDown(currentAllTargetTags, 'Suggested Tags', '', 225, true);
+		
+		addTagButton = createButton('Add Tag', 75, saveTagUpdate);
+		deleteTagButton = createButton('Remove Tag', 75, removeUserTag);
+		selectTagButton = createButton('Select Tag', 75, selectUserTag);
+		/*selectTagButton = new Ext.Button({
+			text    : 'Select Tag',
+			width	: 75,
+			handler : selectUserTag
+		});*/
+		
+		TagsForm = new Ext.FormPanel({
+			bodyStyle: 'padding: 5px',
+			resizable:false,
+			collapsible:false,
+			x: 0, y: 0,
+			autoScroll: true,
+			autoDestroy: true,
+			draggable:false,
+			minimizable: false,
+			labelWidth: 125,
+			items: [{
+				layout: 'form',
+				border: false,
+				items:
+				[
+					{
+						xtype : 'container',layout : 'column', anchor : '100%', defaultType : 'field',
+						items : [
+							{ xtype  : 'container', layout : 'form', style: {"padding-top": '10px'}, items : [ Tag_Input_TextField ]},
+							{ xtype  : 'container', layout : 'form', style: {"padding-top": '10px', "padding-left": '25px'}, items : [ addTagButton ]}
+						]
+					}, {
+						xtype : 'container',layout : 'column', anchor : '100%', defaultType : 'field',
+						items : [
+						     { xtype  : 'container', layout : 'form', style: {"padding-top": '10px'}, items : [ combo_Current_Tags ]},
+						     { xtype  : 'container', layout : 'form', style: {"padding-top": '10px', "padding-left": '25px'}, items : [ deleteTagButton ]}
+						]
+					}, {
+						xtype : 'container',layout : 'column', anchor : '100%', defaultType : 'field',
+						items : [
+						     { xtype  : 'container', layout : 'form', style: {"padding-top": '10px'}, items : [ combo_All_Target_Tags ]},
+						     { xtype  : 'container', layout : 'form', style: {"padding-top": '10px', "padding-left": '25px'}, items : [ selectTagButton ]}
+						]
+					}
+				]
+			}]
+		});
+		
+		TagsWindow = new Ext.Window({
+			title		: 'Update Target Tags',
+			closable	: true,
+			resizable	: false,
+			width		: 500,
+			height		: 225,
+			plain		: true,
+			layout		: 'fit',
+			items		: TagsForm,
+			buttons		: [{ text: 'Close Window', handler: cancelTagUpdate }]
+		});
+		TagsWindow.show();
+	} catch(err) {
+		logger.debug("User Target List Widget: openEditTagsWindow(): err: " + err);
+	}
+}
+
+function getData(config) {
+	try {
+		if (textToDisplay == '') {
+			textToDisplay = 'All User Target List Data';
+		} else if (textToDisplay != '') {
+			textToDisplay = '';
+		}
+		
+		var launchConfig;
+		if (config != null) {
+			launchConfig = config;
+		} else {
+			launchConfig = Ozone.launcher.WidgetLauncherUtils.getLaunchConfigData();
+		}
+		if(launchConfig == null) {
+			data = {channel: CHANNEL_NAME_userTargets};
+			launchConfig = Ozone.util.toString(data);
+		}
+		
+		if (!launchConfig) {
+			var scope = this;
+			this.gadgetEventingController = new Ozone.eventing.Widget('rpc_relay.uncompressed.html', 
+				function() { 
+					scope.gadgetEventingController.subscribe.apply(scope, [ channelToUse, scope.update ]);
+					scope.update;
+				}
+			);
+		} else {
+			var data = Ozone.util.parseJson(launchConfig);
+			var channelToUse = data.channel;
+
+			var scope = this;
+			this.gadgetEventingController = new Ozone.eventing.Widget('rpc_relay.uncompressed.html', 
+				function() {
+					scope.gadgetEventingController.subscribe.apply(scope, [ channelToUse, scope.update ]);
+					scope.update;
+				}
+			);
+		}
+		
+		var url = "JSON/JSON_User_Target_List.jsp?pageNumber=" + pageNumber + "&pageSize=" + pageSizeLimit;
+		/*if (displayActiveResults) {
+			url += "&displayActiveResults=" + displayActiveResults;
+		}
+		if (displayInActiveResults) {
+			url += "&displayInActiveResults=" + displayInActiveResults;
+		}
+		if (displayEmphasizedResults) {
+			url += "&displayEmphasizedResults=" + displayEmphasizedResults;
+		}
+		if (displayUnEmphasizedResults) {
+			url += "&displayUnEmphasizedResults=" + displayUnEmphasizedResults;
+		}
+		if (displayNoImagesCollectedResults) {
+			url += "&displayNoImagesCollectedResults=" + displayNoImagesCollectedResults;
+		}
+		if (displayImagesCollectedResults) {
+			url += "&displayImagesCollectedResults=" + displayImagesCollectedResults;
+		}
+		if (displayNoImagesRemainingResults) {
+			url += "&displayNoImagesRemainingResults=" + displayNoImagesRemainingResults;
+		}
+		if (displayImagesRemainingResults) {
+			url += "&displayImagesRemainingResults=" + displayImagesRemainingResults;
+		}*/
+		if (general_search != null && general_search != '') {
+			url += "&general_search='" + general_search + "'";
+		}
+		if (Target_Key_Field != null && Target_Key_Field != '') {
+			url += "&target_key='" + Target_Key_Field + "'";
+			url += "&target_key_criteria='" + Target_Key_SearchCriteria + "'";
+		}
+		if (Target_ID_Field != null && Target_ID_Field != '') {
+			url += "&target_id='" + Target_ID_Field + "'";
+			url += "&target_id_criteria='" + Target_ID_SearchCriteria + "'";
+		}
+		if (Target_Name_Field != null && Target_Name_Field != '') {
+			url += "&target_name='" + Target_Name_Field + "'";
+			url += "&target_name_criteria='" + Target_Name_SearchCriteria + "'";
+		}
+		if (Target_Type_Field != null && Target_Type_Field != '') {
+			url += "&target_type='" + Target_Type_Field + "'";
+			url += "&target_type_criteria='" + Target_Type_SearchCriteria + "'";
+		}
+		if (Prism_ID_Field != null && Prism_ID_Field != '') {
+			url += "&prism_id='" + Prism_ID_Field + "'";
+			url += "&prism_id_criteria='" + Prism_ID_SearchCriteria + "'";
+		}
+		if (Tags_Field != null && Tags_Field != '') {
+			url += "&tag_value='" + Tags_Field + "'";
+			url += "&tag_value_criteria='" + Tags_SearchCriteria + "'";
+		}
+		
+		if (textToDisplay == '') {
+			textToDisplay = 'All User Target List Data';
+		}
+		
+		if (!descriptionField || descriptionField == null) {
+			descriptionField = Ext.getCmp('displayDescription');
+		}
+		if (descriptionField != null) {
+			descriptionField.update('Updating User Target List');
+		}
+		var responseVal = postURL(url,null);
+		if (descriptionField != null) {
+			descriptionField.update('Displaying User Target List');
+		}
+		return eval(trim(responseVal));
+	} catch (err) {
+		logger.debug("User Target List Widget: getData(): err: " + err);
+	}
+}
+
+function displayFormWindow(){
+	try {
+		var inputs = document.getElementsByTagName("input");
+		var checked = [];
+		for (var i = 0; i < inputs.length; i++) {
+		  if (inputs[i].type == "checkbox" && inputs[i].id == "selectRow") {
+			  if (inputs[i].checked) {
+				  checked.push("'" + inputs[i].name + "'");
+			  }
+		  }
+		}
+		if (checked.length == 0) {
+			alert('Please select Target\'s');
+		} else {
+			setSelectedTargets(checked);
+			lookupDisplayMapWidget();
+		}
+	} catch (err) {
+		logger.debug("User Target List Widget: displayFormWindow(): err: " + err);
+	}
+}
+
+function RemoveFromUserListFormWindow() {
+	try {
+		var inputs = document.getElementsByTagName("input");
+		var checked = [];
+		for (var i = 0; i < inputs.length; i++) {
+			if (inputs[i].type == "checkbox" && inputs[i].id == "selectRow") {
+				if (inputs[i].checked) {
+					checked.push(inputs[i].name);
+				}
+			}
+		}
+		if (checked.length == 0) {
+			alert('Please select Targets\'s');
+		} else {
+			setSelectedTargets(checked);
+			var result = updateUserTargetList("DELETE");
+			if (result) {
+				store.loadData(getData());
+			} else {
+				alert( "Database Update Failed" );
+			}
+		}
+	} catch (err) {
+		logger.debug("User Target List Widget: RemoveFromUserListFormWindow(): err: " + err);
+	}
+}
+
+function resetSearchFields() {
+	try {
+		Target_Key_Field 			= '';
+		Target_Key_SearchCriteria 	= '';
+		Target_ID_Field 			= '';
+		Target_ID_SearchCriteria 	= '';
+		Target_Name_Field 			= '';
+		Target_Name_SearchCriteria 	= '';
+		Target_Type_Field 			= '';
+		Target_Type_SearchCriteria 	= '';
+		Prism_ID_Field 				= '';
+		Prism_ID_SearchCriteria 	= '';
+		Tags_Field 					= '';
+		Tags_SearchCriteria 		= '';
+		general_search				= '';
+		
+		var form_general_search = Ext.getCmp('form_general_search');
+		if (form_general_search!=null) {
+			form_general_search.setValue("");
+		}
+		
+		if (!descriptionField || descriptionField == null) {
+			descriptionField = Ext.getCmp('displayDescription');
+		}
+		if (descriptionField != null) {
+			textToDisplay = 'Displaying All User Target List Data';
+			descriptionField.update(textToDisplay);
+		}
+		
+		store.loadData(getData());
+	} catch(err) {
+		logger.debug("User Target List Widget: resetSearchFields(): err: " + err);
+	}
+}
+
+function startAdvancedSearch(){
+	try {
+		var SearchForm;
+		var SearchWindow;
+		var Search_Target_Key;
+		var combo_Target_Key;
+		var Search_Target_ID;
+		var combo_Target_ID;
+		var Search_Target_Name;
+		var combo_Target_Name;
+		var Search_Target_Type;
+		var combo_Target_Type;
+		var Search_Prism_ID;
+		var combo_Prism_ID;
+		var Search_Tags;
+		var combo_Tags;
+		
+		function listSearch(){
+			try {
+				Target_Key_Field 			= '';
+				Target_Key_SearchCriteria 	= '';
+				Target_ID_Field 			= '';
+				Target_ID_SearchCriteria 	= '';
+				Target_Name_Field 			= '';
+				Target_Name_SearchCriteria 	= '';
+				Target_Type_Field 			= '';
+				Target_Type_SearchCriteria 	= '';
+				Prism_ID_Field 				= '';
+				Prism_ID_SearchCriteria 	= '';
+				Tags_Field 					= '';
+				Tags_SearchCriteria 		= '';
+				general_search				= '';
+
+				Target_Key_Field = Search_Target_Key.getValue();	
+				Target_Key_SearchCriteria = combo_Target_Key.getValue();				
+				Target_ID_Field = Search_Target_ID.getValue();
+				Target_ID_SearchCriteria = combo_Target_ID.getValue();		
+				Target_Name_Field = Search_Target_Name.getValue();
+				Target_Name_SearchCriteria = combo_Target_Name.getValue();
+				Target_Type_Field = Search_Target_Type.getValue();
+				Target_Type_SearchCriteria = combo_Target_Type.getValue();
+				Prism_ID_Field = Search_Prism_ID.getValue();
+				Prism_ID_SearchCriteria = combo_Prism_ID.getValue();
+				Tags_Field = Search_Tags.getValue();
+				Tags_SearchCriteria = combo_Tags.getValue();
+				
+				if (!descriptionField || descriptionField == null) {
+					descriptionField = Ext.getCmp('displayDescription');
+				}
+				if (descriptionField != null) {
+					textToDisplay = 'Updating Filtered User Target List Data';
+					descriptionField.update(textToDisplay);
+				}
+				store.loadData(getData());
+				if (descriptionField != null) {
+					textToDisplay = 'Displaying Filtered User Target List Data';
+					descriptionField.update(textToDisplay);
+				}
+				SearchWindow.hide();
+			} catch(err) {
+				logger.debug("User Target List Widget: listSearch(): err: " + err);
+			}
+		}
+
+		function resetSearch(){
+			try {
+				SearchWindow.hide();
+			} catch(err){
+				logger.debug("User Target List Widget: resetSearch(): err: " + err);
+			}
+		}
+		
+		Search_Target_Key = createTextField('Target Key', 350, '95%');
+		combo_Target_Key = createTextFieldDropDown('Filter Criteria', 'text-align:right;', 150, true);
+		Search_Target_ID = createTextField('Target ID', 350, '95%');
+		combo_Target_ID = createTextFieldDropDown('Filter Criteria', 'text-align:right;', 150, true);
+		Search_Target_Name = createTextField('Target Name', 350, '95%');
+		combo_Target_Name = createNumericDropDown('Filter Criteria', 'text-align:right;', 150, true);
+		Search_Target_Type = createTextField('Target Type', 350, '95%');
+		combo_Target_Type = createTextFieldDropDown('Filter Criteria', 'text-align:right;', 150, true);
+		Search_Prism_ID = createDateField('Prism ID', 350, '95%');
+		combo_Prism_ID = createDateFieldDropDown('Filter Criteria', 'text-align:right;', 150, true);
+		Search_Tags = createDateField('Tag Value', 350, '95%');
+		combo_Tags = createDateFieldDropDown('Filter Criteria', 'text-align:right;', 150, true);
+		
+		SearchForm = new Ext.FormPanel({
+			bodyStyle	: 'padding: 5px',
+			resizable	: false,
+			collapsible	: false,
+			x: 0, y: 0,
+			autoScroll	: true,
+			autoDestroy	: true,
+			draggable	: false,
+			minimizable	: false,
+			width		: 500,
+			height		: 1000,
+			items		: [{
+				layout	: 'form',
+				border	: false,
+				items: [
+					{
+					   html		: 'Filter For Any Targets That Meet All Of The Specified Criteria',
+					   border	: false,
+					   cls		: 'x-form-item custom-label'
+					}, {
+			        	xtype : 'container',layout : 'column', anchor : '100%', defaultType : 'field',
+			        	items : [
+							{ xtype : 'container', layout : 'form', style: {"padding-top": '10px'}, items : [ Search_Target_Key ]},
+							{ xtype : 'container', layout : 'form', style: {"padding-top": '10px'}, items : [ combo_Target_Key ]}
+			        	]
+			        }, {
+			        	xtype : 'container',layout : 'column', anchor : '100%', defaultType : 'field',
+			        	items : [
+			        	     { xtype : 'container', layout : 'form', style: {"padding-top": '10px'}, items : [ Search_Target_ID ]},
+			        	     { xtype : 'container', layout : 'form', style: {"padding-top": '10px'}, items : [ combo_Target_ID ]}
+			        	]
+			        }, {
+			        	xtype : 'container',layout : 'column', anchor : '100%', defaultType : 'field',
+			        	items : [
+			        	     { xtype : 'container', layout : 'form', style: {"padding-top": '10px'}, items : [ Search_Target_Name ]},
+						     { xtype : 'container', layout : 'form', style: {"padding-top": '10px'}, items : [ combo_Target_Name ]}
+						]
+			        }, {
+			        	xtype : 'container',layout : 'column', anchor : '100%', defaultType : 'field',
+			        	items : [
+			        	     { xtype : 'container', layout : 'form', style: {"padding-top": '10px'}, items : [ Search_Target_Type ]},
+			        	     { xtype : 'container', layout : 'form', style: {"padding-top": '10px'}, items : [ combo_Target_Type ]}
+			        	]
+			        }, {
+			        	xtype : 'container',layout : 'column', anchor : '100%', defaultType : 'field',
+			        	items : [
+			        	     { xtype : 'container', layout : 'form', style: {"padding-top": '10px'}, items : [ Search_Prism_ID ]},
+			        	     { xtype : 'container', layout : 'form', style: {"padding-top": '10px'}, items : [ combo_Prism_ID ]}
+			        	]
+			        }, {
+			        	xtype : 'container',layout : 'column', anchor : '100%', defaultType : 'field',
+			        	items : [
+			        	     { xtype : 'container', layout : 'form', style: {"padding-top": '10px'}, items : [ Search_Tags ]},
+			        	     { xtype : 'container', layout : 'form', style: {"padding-top": '10px'}, items : [ combo_Tags ]}
+			        	]
+			        }
+				]
+			}]
+		});
+
+		SearchWindow = new Ext.Window({
+			title	: 'Advanced Target Filter',
+			closable: true,
+			width	: 725,
+			height	: 350,
+			plain	: true,
+			layout	: 'fit',
+			items	: SearchForm,
+			buttons: [{
+				text	: 'Filter',
+				handler	: listSearch
+			},{
+				text	: 'Close',
+				handler	: resetSearch
+			}]
+		});
+
+		// once all is done, show the search window
+		SearchWindow.show();
+	} catch(err) {
+		logger.debug("User Target List Widget: startAdvancedSearch(): err: " + err);
+	}
+} 
+
+function drawGridObject(configString) {
+	try {
+		Ext.app.SearchField = Ext.extend(Ext.form.TwinTriggerField, {
+		    initComponent : function(){
+		        Ext.app.SearchField.superclass.initComponent.call(this);
+		        this.on('specialkey', function(f, e){
+		            if(e.getKey() == e.ENTER){
+		                this.onTrigger2Click();
+		            }
+		        }, this);
+		    },
+		    id				: 'form_general_search',
+		    validationEvent	: false,
+		    validateOnBlur	: false,
+		    trigger1Class	: 'x-form-clear-trigger',
+		    trigger2Class	: 'x-form-search-trigger',
+		    hideTrigger1	: true,
+		    width			: 250,
+		    hasSearch 		: false,
+		    paramName 		: 'query',
+		    onTrigger1Click : function(){
+		    	this.setValue('');
+		    	this.triggers[0].hide();
+		    	general_search = '';
+		    	if (!descriptionField || descriptionField == null) {
+					descriptionField = Ext.getCmp('displayDescription');
+				}
+		    	if (descriptionField != null) {
+		    		textToDisplay = 'Displaying All User Target List Data';
+		    		descriptionField.update(textToDisplay);
+		    	}
+		        store.loadData(getData());
+		    },
+		    onTrigger2Click : function(){
+		    	var v = checkCharacters(this.getRawValue());
+		        if(v.length < 1){
+		            this.onTrigger1Click();
+		            return;
+		        }
+		        general_search = v;
+		        this.triggers[0].show();
+		        if (!descriptionField || descriptionField == null) {
+					descriptionField = Ext.getCmp('displayDescription');
+				}
+		        if (descriptionField != null) {
+		        	textToDisplay = 'Displaying General Filtered User Target List Data For Term: ' + general_search;
+		        	descriptionField.update(textToDisplay);
+		        }
+		        store.loadData(getData());
+		    }
+		});
+		
+		store = new Ext.data.Store({
+			pageSize: pageSizeLimit,
+			autoLoad: {params:{start:0, limit:pageSizeLimit}},
+			proxy: new Ext.data.MemoryProxy(getData()),
+			reader: new Ext.data.ArrayReader({}, [
+                {name: 'target_key'},
+			   	{name: 'target_id'},
+			   	{name: 'target_name'},
+			   	{name: 'target_type'},
+			   	{name: 'prism_id'},
+			   	{name: 'keyword'},
+			   	{name: 'user_target_pk'}
+              ]),
+            sortInfo:{field: 'target_key', direction: "ASC"}
+		});
+		
+		columnModel = new Ext.grid.ColumnModel(
+			[ new Ext.grid.RowNumberer({width: 30}),
+			 {
+				 header		: '<input id="selectRowHeader" type="checkbox" onClick="selectAll();"/>',
+				 align		: 'center',
+				 dataIndex	: 'target_key',
+				 menuDisabled: true,
+				 sortable 	: false,
+				 width		: 25,        
+				 renderer	: function(val, x, store) {
+					 return '<div class=\"cellContent\"><input id="selectRow" onClick="checkEnable();" type="checkbox" name="' + val + '"/></div>';
+				 }
+			 },
+			 {
+				header     	: 'Target Key',
+				width     	: 150,
+				sortable 	: false,
+				dataIndex	: 'target_key',
+				textAlign	: 'center',
+				align		: 'center',
+				style		: {"text-align": 'center' },
+				editor		: new Ext.form.TextField({
+					 readOnly	: true,
+					 editable	: false
+		        }),
+				renderer	:  function(val, x, store) {
+					return '<div class=\"cellContent\">' + val + '</div>'; 
+				}
+			 },
+			 {
+				header     	: 'Target ID',
+				width	 	: 100,
+				sortable 	: true,
+				dataIndex	: 'target_id',
+				align		: 'center',
+				style		: {"text-align": 'center' },
+				editor		: new Ext.form.TextField({
+					 readOnly	: true,
+					 editable	: false
+		        }),
+				renderer	:  function(val, x, store) {
+					return '<div class=\"cellContent\">' + val + '</div>'; 
+				}
+			},
+			{
+				header     	: 'Target Name',
+				width    	: 150,
+				sortable 	: true,
+				dataIndex	: 'target_name',
+				align		: 'center',
+				style		: {"text-align": 'center' },
+				editor		: new Ext.form.TextField({
+					 readOnly	: true,
+					 editable	: false
+		        }),
+				renderer	:  function(val, x, store) {
+					 return '<div class=\"cellContent\">' + val + '</div>'; 
+				}
+			},
+			{
+				header     	: 'Target Type',
+				width    	: 75,
+				sortable 	: true,
+				dataIndex	: 'target_type',
+				align		: 'center',
+				style		: {"text-align": 'center' },
+				editor		: new Ext.form.TextField({
+					 readOnly	: true,
+					 editable	: false
+		        }),
+				renderer	:  function(val, x, store) {
+					 return '<div class=\"cellContent\">' + val + '</div>'; 
+				}
+			},
+			{
+				header    	: 'Prism ID',
+				width    	: 150,
+				sortable 	: true,
+				dataIndex	: 'prism_id',
+				align		: 'center',
+				style		: {"text-align": 'center' },
+				editor		: new Ext.form.TextField({
+					 readOnly	: true,
+					 editable	: false
+		        }),
+				renderer	:  function(val, x, store) {
+					 return '<div class=\"cellContent\">' + val + '</div>'; 
+				 }
+			}, {
+				header     	: 'More Details',
+				tooltip		: 'View More Details About This Target',
+				width    	: 75,
+				sortable 	: true,
+				dataIndex	: 'target_key',
+				align		: 'center',
+				style		: {"text-align": 'center'},
+				renderer	:  function(val, x, store) {											
+					return '<div class=\"cellContent\"><img src="../images/details_icon.gif" alt="View More Details About This Target" align="middle" onClick="getAllTargetWidgetDetails({target_key: \'' + store.data.target_key + '\'});"  /></div>'; 
+				}
+			}, {
+				header     	: 'History',
+				tooltip		: 'View Target History',
+				width    	: 75,
+				sortable 	: true,
+				dataIndex	: 'target_key',
+				align		: 'center',
+				style		: {"text-align": 'center'},
+				renderer	:  function(val, x, store) {
+					return '<div class=\"cellContent\"><img src="../images/history-icon_small.gif" alt="View Target History" align="middle" onClick="getTargetHistory({target_key: \'' + store.data.target_key + '\'});"  /></div>'; 
+				}
+			}, {
+				 header     : 'View Requests',
+				 tooltip	: 'View All Target Collection Requests Associated With This Target',
+				 width    	: 100,
+				 sortable 	: true,
+				 align		: 'center',
+				 dataIndex	: 'target_key',
+				 style		: {"text-align": 'center'},
+				 renderer	:  function(val, x, store) {
+					 return '<div class=\"cellContent\"><img src="../images/clock_small.png" alt="View All Target Collection Requests Associated With This Target" align=\"middle\" onClick="getTargetCollectionRequests({target_key: \'' + store.data.target_key + '\'});"  /></div>'; 
+				 }
+			 }]
+		);
+		/*var menu = new Ext.menu.Menu({
+	        id: 'mainMenu',
+	        style: { overflow: 'visible' },
+	        items: [
+	            {
+	                text: 'Target Status',
+	                menu: {
+	                    items: [
+	                        {
+	                            text: 'Active Targets',
+	                            checked: displayActiveResults,
+	                            checkHandler: function(item, checked) {
+	                            	displayActiveResults = checked;
+	                            	store.loadData(getData());
+	                            }
+	                        }, {
+	                            text: 'In-Active Targets',
+	                            checked: displayInActiveResults,
+	                            checkHandler: function(item, checked) {
+	                            	displayInActiveResults = checked;
+	                            	store.loadData(getData());
+	                            }
+	                        }
+	                    ]
+	                }
+	            }, {
+	                text: 'Target Emphasis',
+	                menu: {
+	                    items: [
+	                        {
+	                            text: 'Emphasized Targets',
+	                            checked: displayEmphasizedResults,
+	                            checkHandler: function(item, checked) {
+	                            	displayEmphasizedResults = checked;
+	                            	store.loadData(getData());
+	                            }
+	                        }, {
+	                            text: 'Not-Emphasized Targets',
+	                            checked: displayUnEmphasizedResults,
+	                            checkHandler: function(item, checked) {
+	                            	displayUnEmphasizedResults = checked;
+	                            	store.loadData(getData());
+	                            }
+	                        }
+	                    ]
+	                }
+	            }, {
+	                text: 'Images Collected',
+	                menu: {
+	                    items: [
+	                        {
+	                            text: '0',
+	                            checked: displayNoImagesCollectedResults,
+	                            checkHandler: function(item, checked) {
+	                            	displayNoImagesCollectedResults = checked;
+	                            	store.loadData(getData());
+	                            }
+	                        }, {
+	                            text: '1+',
+	                            checked: displayImagesCollectedResults,
+	                            checkHandler: function(item, checked) {
+	                            	displayImagesCollectedResults = checked;
+	                            	store.loadData(getData());
+	                            }
+	                        }
+	                    ]
+	                }
+	            }, {
+	                text: 'Images Remaining',
+	                menu: {
+	                    items: [
+	                        {
+	                            text: '0',
+	                            checked: displayNoImagesRemainingResults,
+	                            checkHandler: function(item, checked) {
+	                            	displayNoImagesRemainingResults = checked;
+	                            	store.loadData(getData());
+	                            }
+	                        }, {
+	                            text: '1+',
+	                            checked: displayImagesRemainingResults,
+	                            checkHandler: function(item, checked) {
+	                            	displayImagesRemainingResults = checked;
+	                            	store.loadData(getData());
+	                            }
+	                        }
+	                    ]
+	                }
+	            }
+	        ]
+	    });*/
+		
+		editorGrid =  new Ext.grid.EditorGridPanel({
+			id			: 'editorGrid',
+			store		: store,
+			sm			: new Ext.grid.RowSelectionModel({
+                singleSelect: true,
+                multiSelect	: true,
+                listeners	: {
+                     rowselect	: function(smObj, rowIndex, record) {
+                         selRecordStore = record;
+                    }
+               }
+            }),
+			cm			: columnModel,
+			stripeRows	: true,
+			clicksToEdit: 2,
+			bbar		: new Ext.PagingToolbar({
+	            pageSize	: pageSizeLimit,
+	            store		: store,
+	            displayInfo	: true,
+	            displayMsg	: 'Displaying Target Records {0} - {1} of {2}',
+				emptyMsg	: 'No Target Records To Display',
+	            items:[
+	                '-', {
+					    xtype: 'tbbutton',
+					    cls: 'x-btn-icon',
+					    icon : '../images/feedback_icon_small.jpg',
+					    tooltip	: 'Provide Feedback About This Form',
+					    width:30,
+					    handler: function() {
+					    	createFeedbackForm('User Target List');
+					    }
+					}, '-', {
+						   html: '<p>Displaying All User Target List Data</p>',
+						   id: 'displayDescription'
+					}
+	            ]
+	        }),
+			tbar		: [
+		       {
+		    	   text			: 'Add To Map',
+		    	   tooltip		: 'Add The Selected Target\'s to the Map',
+		    	   iconCls		: 'map-add',
+		    	   id			: 'addToMapButton',
+		    	   disabled		: true,
+		    	   cls			: 'x-form-toolbar-standardButton',
+		    	   handler		: displayFormWindow
+		       }, '-', {
+		    	   text			: 'Remove From User List',
+		    	   tooltip		: 'Remove The Selected Target\'s From The User List',
+		    	   iconCls		: 'userList-delete',
+		    	   id			: 'RemoveFromUserListButton',
+		    	   disabled		: true,
+		    	   cls			: 'x-form-toolbar-standardButton',
+		    	   handler		: RemoveFromUserListFormWindow
+		       }, '-', {
+		    	   text			: 'Edit Tags',
+		    	   tooltip		: 'Add The Selected Target\'s to the Map',
+		    	   iconCls		: 'targetTags-edit',
+		    	   id			: 'updateTargetTagsButton',
+		    	   disabled		: true,
+		    	   cls			: 'x-form-toolbar-standardButton',
+		    	   handler		: updateUserTargetTags
+		       }, /*'-', {
+		            text:'Filter',
+		            iconCls: 'bmenu',
+		            menu: menu
+			    }, */'-', {
+		    	   text		: 'Adv. Filter',
+		    	   tooltip 	: 'Advanced Filter',
+		    	   handler	: startAdvancedSearch,   
+		    	   iconCls	:'search'
+		       }, '-', 
+		       new Ext.app.SearchField({
+		    	   store : store,
+		    	   width : 250
+		       }), {
+		    	   text		: 'Clear Filter Criteria',
+		    	   tooltip	: 'Remove Filter Criteria',
+		    	   handler	: resetSearchFields,   
+		    	   iconCls	: 'search'
+		       }
+		]
+		});
+		descriptionField = Ext.getCmp('displayDescription');
+		
+		function onEditorGridContextMenu(grid, rowIndex, e){
+			e.stopEvent();
+		    var coords = e.getXY();
+		    GridRowContextMenu.rowRecord = grid.store.getAt(rowIndex);
+		    grid.selModel.selectRow(rowIndex);
+		    GridRowContextMenu.showAt([coords[0], coords[1]]);
+		}
+
+		GridRowContextMenu = new Ext.menu.Menu({
+		      id: 'GridRowContextMenu',
+		      items: [
+		          { text: 'More Details',  iconCls:'view-details', 				 handler: function() { getAllTargetWidgetDetails({target_key:GridRowContextMenu.rowRecord.get('target_key')}); }},
+		          { text: 'View History',  iconCls:'target_history', 			 handler: function() { getTargetHistory({target_key:GridRowContextMenu.rowRecord.get('target_key')}); }},
+		          { text: 'View Requests', iconCls:'target_collection_requests', handler: function() { getTargetCollectionRequests({target_key:GridRowContextMenu.rowRecord.get('target_key')}); }},
+		          '-',
+		          { text: 'Add To Map', iconCls:'map-add', handler: function() {
+		        	  var checked = new Array();
+		        	  checked.push('\'' + GridRowContextMenu.rowRecord.get('target_key') + '\'');
+		        	  setSelectedTargets(checked);
+		        	  lookupDisplayMapWidget();
+		          }},
+		          { text: 'Remove From User List', iconCls:'userList-delete', handler: function() {
+		        	  var checked = new Array();
+		        	  checked.push(GridRowContextMenu.rowRecord.get('target_key'));
+		        	  setSelectedTargets(checked);
+		        	  var result = updateUserTargetList("DELETE");
+		        	  if (result) {
+		        		  lookupUserTargetListWidget();
+		        	  } else {
+		        		  alert( "Database Insert Failed" );
+		        	  }
+		          }},
+		          { text: 'Edit Tags', iconCls:'targetTags-edit', handler: function() {
+		        	  var checked = new Array();
+		        	  checked.push(GridRowContextMenu.rowRecord.get('target_key'));
+		        	  openEditTagsWindow(checked);
+		          }},
+		      ]
+		 });
+		editorGrid.addListener('rowcontextmenu', onEditorGridContextMenu);
+		
+		displayWindow = new Ext.Viewport({
+			id			: 'displayWindow',
+			title		: 'User Target Requests',
+			closable	: false,
+			width		: 1000,
+			height		: 650,
+			resizable	: false,
+			collapsible	: false,
+			x: 0, y: 0,
+			draggable	: false,
+			minimizable	: false,
+          	iconCls		: 'target_icon',
+			plain		: true,
+			layout		: 'fit',
+			items		: editorGrid
+		});
+		store.load();
+		displayWindow.show();
+
+	} catch (err) {
+		logger.debug("User Target List Widget: drawGridObject(): err: " + err);
+	}  
+}
+
+var update = function(sender, msg) {
+	try {
+		if (listeningForUpdates) {
+			logger.debug('User Target List Widget :: MSG :' + msg );
+			store.loadData(getData(msg));
+		}
+	} catch(err) {
+		logger.debug("User Target List Widget: update(): err: " + err);
+	}
+}
+
+Ext.onReady(function(){
+	Ext.QuickTips.init();
+	drawGridObject();
+});

@@ -1,0 +1,614 @@
+var displayWindow;
+var generalForm;
+var crListForm;
+var targetListForm;
+var targetCollectionHistoryForm;
+var targetCollectionRequestsForm;
+var userCRListForm;
+var userTargetListForm;
+var userPreferencesTabs;
+
+var imagesPath 			= '../images/';
+var action_available	= 'available';
+var action_selected 	= 'selected';
+var action_update 		= 'UPDATE';
+var action_load 		= 'LOAD_VALUES';
+
+var tabTitle_general 					= 'General';
+var title_general 						= 'User Preferences - General';
+var tabTitle_crList 					= 'CR List';
+var title_crList 						= 'User Preferences - CR List';
+var tabTitle_targetList 				= 'Target List';
+var title_targetList 					= 'User Preferences - Target List';
+var tabTitle_targetCollectionHistory 	= 'Target Collection History';
+var title_targetCollectionHistory 		= 'User Preferences - Target Collection History List';
+var tabTitle_targetCollectionRequests 	= 'Target Collection Requests';
+var title_targetCollectionRequests 		= 'User Preferences - Target Collection Requests List';
+var tabTitle_userCRList 				= 'User CR List';
+var title_userCRList 					= 'User Preferences - User CR List';
+var tabTitle_userTargetList 			= 'User Target List';
+var title_userTargetList 				= 'User Preferences - User Target List';
+
+var JSON_General_UserPreferences 					= 'JSON/UserPreferencesJSON/JSON_General_UserPreferences.jsp';
+var JSON_CRList_UserPreferences 					= 'JSON/UserPreferencesJSON/JSON_CRList_UserPreferences.jsp';
+var JSON_TargetCollectionHistory_UserPreferences 	= 'JSON/UserPreferencesJSON/JSON_TargetCollectionHistory_UserPreferences.jsp';
+var JSON_TargetCollectionRequests_UserPreferences 	= 'JSON/UserPreferencesJSON/JSON_TargetCollectionRequests_UserPreferences.jsp';
+var JSON_TargetList_UserPreferences 				= 'JSON/UserPreferencesJSON/JSON_TargetList_UserPreferences.jsp';
+var JSON_UserCRList_UserPreferences 				= 'JSON/UserPreferencesJSON/JSON_UserCRList_UserPreferences.jsp';
+var JSON_UserTargetList_UserPreferences 			= 'JSON/UserPreferencesJSON/JSON_UserTargetList_UserPreferences.jsp';
+    	
+function loadGeneralFormValues() {
+	try {
+		var url = JSON_General_UserPreferences + "?ACTION='" + action_load + "'";
+		var responseVal = postURL(url,null);
+		var result = eval(trim(responseVal));;
+		var myData = new Array();
+		if (result != null) {
+			for (i = 0; i < result.length; i++) {
+				generalForm.getForm().findField(result[i][0]).setValue(result[i][1]);
+				myData.push(result[i]);
+			}
+		}
+	} catch(err){
+		logger.debug("getAvailableAndSelectedListData(): err: " + err);
+	}
+}
+	    
+function getAvailableAndSelectedListData(jspFile, action) {
+	try {
+		var url = jspFile + "?ACTION='" + action + "'";
+		var responseVal = postURL(url,null);
+		var result = eval(trim(responseVal));
+		var myData = new Array();
+		if (result != null) {
+			for (i = 0; i < result.length; i++) {
+				myData.push(result[i]);
+			}
+		}
+		return myData;
+	} catch(err){
+		logger.debug("getAvailableAndSelectedListData(): err: " + err);
+	}
+}
+
+function drawGridObject() {
+	try {
+		generalForm = new Ext.form.FormPanel({
+	        width		: 950,
+	        bodyStyle	: 'padding-top:10px; padding-bottom:10px;',
+	        items		: [
+				{
+					xtype		: 'textfield',
+					vtype		: 'email',
+					fieldLabel	: 'Email Address',
+					id			: 'emailAddress',
+					allowBlank	: true,
+					width		: 300,
+					labelStyle	: 'width:150px;padding-left:10px;padding-bottom:20px;',
+				}, {
+					title : '<h3">Filter Defaults</h3>'
+				}, {
+					fieldLabel	: 'Target Status',
+					bodyStyle	: 'margin-top:10px;padding-left:5px;padding-bottom:5px;',
+					labelStyle	: 'width:150px;padding-left:10px;margin-top:10px;',
+					items		: [
+				        {
+				        	xtype          	: 'checkbox',
+				            fieldLabel     	: "",
+				            labelSeparator 	: ' ',
+				            id				: 'tgtStatus_active',
+				            boxLabel       	: 'Active Targets'
+				        }, {
+				        	xtype          	: 'checkbox',
+				            fieldLabel     	: "",
+				            labelSeparator 	: ' ',
+				            id				: 'tgtStatus_inactive',
+				            boxLabel       	: 'In-Active Targets'
+				        }
+					]
+				}, {
+					fieldLabel	: 'Target Emphasis',
+					bodyStyle	: 'margin-top:10px;padding-left:5px;padding-bottom:5px;',
+					labelStyle	: 'width:150px;padding-left:10px;margin-top:10px;',
+					items		: [
+				        {
+				        	xtype          	: 'checkbox',
+				            fieldLabel     	: "",
+				            labelSeparator 	: ' ',
+				            id				: 'tgtEmphasis_true',
+				            boxLabel       	: 'Emphasized Targets'
+				        }, {
+				        	xtype          	: 'checkbox',
+				            fieldLabel     	: "",
+				            labelSeparator 	: ' ',
+				            id				: 'tgtEmphasis_false',
+				            boxLabel       	: 'Not-Emphasized Targets'
+				        }
+					]
+				}, {
+					fieldLabel	: 'Images Collected',
+					bodyStyle	: 'margin-top:10px;padding-left:5px;padding-bottom:5px;',
+					labelStyle	: 'width:150px;padding-left:10px;margin-top:10px;',
+					items: [
+				        {
+				        	xtype          	: 'checkbox',
+				            fieldLabel     	: "",
+				            labelSeparator 	: ' ',
+				            id				: 'imagesCollected_false',
+				            boxLabel       	: '0'
+				        }, {
+				        	xtype          	: 'checkbox',
+				            fieldLabel     	: "",
+				            labelSeparator 	: ' ',
+				            id				: 'imagesCollected_true',
+				            boxLabel       	: '1+'
+				        }
+					]
+				}, {
+					fieldLabel	: 'Images Remaining',
+					bodyStyle	: 'margin-top:10px;padding-left:5px;padding-bottom:5px;',
+					labelStyle	: 'width:150px;padding-left:10px;margin-top:10px;',
+					items		: [
+				        {
+				        	xtype          	: 'checkbox',
+				            fieldLabel     	: "",
+				            labelSeparator 	: ' ',
+				            id				: 'imagesRemaining_false',
+				            boxLabel       	: '0'
+				        }, {
+				        	xtype          	: 'checkbox',
+				            fieldLabel     	: "",
+				            labelSeparator 	: ' ',
+				            id				: 'imagesRemaining_true',
+				            boxLabel       	: '1+'
+				        }
+					]
+				}
+	        ],
+	        buttons		: [{
+	            text	: 'Update',
+	            handler	: function(){
+	                if(generalForm.getForm().isValid()){
+	                	var values = generalForm.getForm().getValues(true);
+	                	var url = JSON_General_UserPreferences + "?ACTION='" + action_update + "'&" + values;
+	    	    		var responseVal = postURL(url,null);
+	    	    		var result = eval(trim(responseVal));
+	    	    		logger.debug('result: ' + result);
+	    	    		if (result == 'success') {
+							alert("General Preferences Were Successfully Updated");
+						} else {
+							alert("There Was An Error In Updating Your General Preferences. Please Contact Your System Administrator For Further Assistance");
+						}
+	                }
+	            }
+	        }]
+	    });
+	} catch (err) {
+		logger.debug("User Preferences Widget: drawGridObject() - generalForm: err: " + err);
+	}
+	try {
+		var crListStore_available = new Ext.data.ArrayStore({
+			fields	: ['value', 'text'],
+			data	: getAvailableAndSelectedListData(JSON_CRList_UserPreferences, action_available)
+		});
+	    
+	    var crListStore_selected = new Ext.data.ArrayStore({
+			fields	: ['value', 'text'],
+			data	: getAvailableAndSelectedListData(JSON_CRList_UserPreferences, action_selected)
+		});
+		
+	    crListForm = new Ext.form.FormPanel({
+	        width		: 950,
+	        bodyStyle	: 'padding:10px;',
+	        items		: [{
+	            xtype			: 'itemselector',
+	            name			: 'selectedValues',
+	            imagePath		: imagesPath,
+	            multiselects	: [{
+	                width			: 250,
+	                height			: 250,
+	                store			: crListStore_available,
+	                displayField	: 'text',
+	                valueField		: 'value'
+	            },{
+	                width			: 250,
+	                height			: 250,
+	                store			: crListStore_selected,
+	                displayField 	: 'text',
+	                valueField		: 'value'
+	            }]
+	        }],
+	        buttons		: [{
+	            text	: 'Update',
+	            handler	: function(){
+	                if(crListForm.getForm().isValid()) {
+	                	var values = crListForm.getForm().getValues(true);
+	                	if (values == 'selectedValues=') {
+	                		Ext.Msg.alert('CR List Preferences', 'Please Select At Least One Available CR List Column To Display');
+	                	} else {
+	                		var url = JSON_CRList_UserPreferences + "?ACTION='" + action_update + "'&VALUES='" + values + "'";
+		    	    		var responseVal = postURL(url,null);
+		    	    		var result = trim(responseVal);
+		    	    		alert('result: ' + result);
+	                	}
+	                }
+	            }
+        	}]
+	    });
+	} catch (err) {
+		logger.debug("User Preferences Widget: drawGridObject() - crListForm: err: " + err);
+	}
+	
+	try {
+	    var targetListStore_available = new Ext.data.ArrayStore({
+			fields	: ['value', 'text'],
+			data	: getAvailableAndSelectedListData(JSON_TargetList_UserPreferences, action_available)
+		});
+	    
+	    var targetListStore_selected = new Ext.data.ArrayStore({
+			fields	: ['value', 'text'],
+			data	: getAvailableAndSelectedListData(JSON_TargetList_UserPreferences, action_selected)
+		});
+	    
+	    targetListForm = new Ext.form.FormPanel({
+	        width		: 950,
+	        bodyStyle	: 'padding:10px;',
+	        items		: [{
+	            xtype			: 'itemselector',
+	            name			: 'selectedValues',
+	            imagePath		: imagesPath,
+	            multiselects	: [{
+	                width		: 250,
+	                height		: 250,
+	                store		: targetListStore_available,
+	                displayField: 'text',
+	                valueField	: 'value'
+	            },{
+	                width		: 250,
+	                height		: 250,
+	                store		: targetListStore_selected,
+	                displayField: 'text',
+	                valueField	: 'value'
+	            }]
+	        }],
+	        buttons		: [{
+	            text	: 'Update',
+	            handler	: function(){
+	                if(targetListForm.getForm().isValid()){
+	                    var values = crListForm.getForm().getValues(true);
+	                	if (values == 'selectedValues=') {
+	                		Ext.Msg.alert('Target List Preferences', 'Please Select At Least One Available Target List Column To Display');
+	                	} else {
+	                		var url = JSON_TargetList_UserPreferences + "?ACTION='" + action_update + "'&VALUES='" + values + "'";
+		    	    		var responseVal = postURL(url,null);
+		    	    		var result = trim(responseVal);
+		    	    		alert('result: ' + result);
+	                	}
+	                }
+	            }
+	        }]
+	    });
+	} catch (err) {
+		logger.debug("User Preferences Widget: drawGridObject() - targetListForm: err: " + err);
+	}
+	
+	try {
+	    var targetCollectionHistoryStore_available = new Ext.data.ArrayStore({
+			fields	: ['value', 'text'],
+			data	: getAvailableAndSelectedListData(JSON_TargetCollectionHistory_UserPreferences, action_available)
+		});
+	    
+	    var targetCollectionHistoryStore_selected = new Ext.data.ArrayStore({
+			fields	: ['value', 'text'],
+			data	: getAvailableAndSelectedListData(JSON_TargetCollectionHistory_UserPreferences, action_selected)
+		});
+	    
+	    targetCollectionHistoryForm = new Ext.form.FormPanel({
+	        width		: 950,
+	        bodyStyle	: 'padding:10px;',
+	        items		: [{
+	            xtype		: 'itemselector',
+	            name		: 'selectedValues',
+	            imagePath	: imagesPath,
+	            multiselects	: [{
+	                width		: 250,
+	                height		: 250,
+	                store		: targetCollectionHistoryStore_available,
+	                displayField: 'text',
+	                valueField	: 'value'
+	            }, {
+	                width		: 250,
+	                height		: 250,
+	                store		: targetCollectionHistoryStore_selected,
+	                displayField: 'text',
+	                valueField	: 'value'
+	            }]
+	        }],
+	        buttons		: [{
+	            text	: 'Update',
+	            handler	: function(){
+	                if(targetCollectionHistoryForm.getForm().isValid()){
+	                    var values = crListForm.getForm().getValues(true);
+	                	if (values == 'selectedValues=') {
+	                		Ext.Msg.alert('Target Collection History Preferences', 'Please Select At Least One Available Target Collection History Column To Display');
+	                	} else {
+	                		var url = JSON_TargetCollectionHistory_UserPreferences + "?ACTION='" + action_update + "'&VALUES='" + values + "'";
+		    	    		var responseVal = postURL(url,null);
+		    	    		var result = trim(responseVal);
+		    	    		alert('result: ' + result);
+	                	}
+	                }
+	            }
+	        }]
+	    });
+	} catch (err) {
+		logger.debug("User Preferences Widget: drawGridObject() - targetCollectionHistoryForm: err: " + err);
+	}
+	
+	try {
+	    var targetCollectionRequestsStore_available = new Ext.data.ArrayStore({
+			fields	: ['value', 'text'],
+			data	: getAvailableAndSelectedListData(JSON_TargetCollectionRequests_UserPreferences, action_available)
+		});
+	    
+	    var targetCollectionRequestsStore_selected = new Ext.data.ArrayStore({
+			fields	: ['value', 'text'],
+			data	: getAvailableAndSelectedListData(JSON_TargetCollectionRequests_UserPreferences, action_selected)
+		});
+	    
+	    targetCollectionRequestsForm = new Ext.form.FormPanel({
+	        width		: 950,
+	        bodyStyle	: 'padding:10px;',
+	        items		: [{
+	            xtype		: 'itemselector',
+	            name		: 'selectedValues',
+	            imagePath	: imagesPath,
+	            multiselects: [{
+	                width			: 250,
+	                height			: 250,
+	                store			: targetCollectionRequestsStore_available,
+	                displayField	: 'text',
+	                valueField		: 'value'
+	            }, {
+	                width			: 250,
+	                height			: 250,
+	                store			: targetCollectionRequestsStore_selected,
+	                displayField	: 'text',
+	                valueField		: 'value'
+	            }]
+	        }],
+	        buttons		: [{
+	            text	: 'Update',
+	            handler: function(){
+	                if(targetCollectionRequestsForm.getForm().isValid()){
+	                    var values = crListForm.getForm().getValues(true);
+	                	if (values == 'selectedValues=') {
+	                		Ext.Msg.alert('Target Collection Requirements Preferences', 'Please Select At Least One Available Target Collection Requirements Column To Display');
+	                	} else {
+	                		var url = JSON_TargetCollectionRequests_UserPreferences + "?ACTION='" + action_update + "'&VALUES='" + values + "'";
+		    	    		var responseVal = postURL(url,null);
+		    	    		var result = trim(responseVal);
+		    	    		alert('result: ' + result);
+	                	}
+	                }
+	            }
+	        }]
+	    });
+	} catch (err) {
+		logger.debug("User Preferences Widget: drawGridObject() - targetCollectionRequestsForm: err: " + err);
+	}
+	
+	try {
+	    var userCRListStore_available = new Ext.data.ArrayStore({
+			fields	: ['value', 'text'],
+			data	: getAvailableAndSelectedListData(JSON_UserCRList_UserPreferences, action_available)
+		});
+	    
+	    var userCRListStore_selected = new Ext.data.ArrayStore({
+			fields	: ['value', 'text'],
+			data	: getAvailableAndSelectedListData(JSON_UserCRList_UserPreferences, action_selected)
+		});
+	    
+	    userCRListForm = new Ext.form.FormPanel({
+	        width		: 950,
+	        bodyStyle	: 'padding:10px;',
+	        items	: [{
+	            xtype			: 'itemselector',
+	            name			: 'selectedValues',
+	            imagePath		: imagesPath,
+	            multiselects	: [{
+	                width			: 250,
+	                height			: 250,
+	                store			: userCRListStore_available,
+	                displayField	: 'text',
+	                valueField		: 'value'
+	            }, {
+	                width			: 250,
+	                height			: 250,
+	                store			: userCRListStore_selected,
+	                displayField	: 'text',
+	                valueField		: 'value'
+	            }]
+	        }],
+	        buttons: [{
+	            text	: 'Update',
+	            handler	: function(){
+	                if(userCRListForm.getForm().isValid()){
+	                    var values = crListForm.getForm().getValues(true);
+	                	if (values == 'selectedValues=') {
+	                		Ext.Msg.alert('User CR List Preferences', 'Please Select At Least One Available User CR List Column To Display');
+	                	} else {
+	                		var url = JSON_UserCRList_UserPreferences + "?ACTION='" + action_update + "'&VALUES='" + values + "'";
+		    	    		var responseVal = postURL(url,null);
+		    	    		var result = trim(responseVal);
+		    	    		alert('result: ' + result);
+	                	}
+	                }
+	            }
+	        }]
+	    });
+	} catch (err) {
+		logger.debug("User Preferences Widget: drawGridObject() - userCRListForm: err: " + err);
+	}
+	
+	try {
+	    var userTargetListStore_available = new Ext.data.ArrayStore({
+			fields	: ['value', 'text'],
+			data	: getAvailableAndSelectedListData(JSON_UserTargetList_UserPreferences, action_available)
+		});
+	    
+	    var userTargetListStore_selected = new Ext.data.ArrayStore({
+			fields	: ['value', 'text'],
+			data	: getAvailableAndSelectedListData(JSON_UserTargetList_UserPreferences, action_selected)
+		});
+	    
+	    userTargetListForm = new Ext.form.FormPanel({
+	        width		: 950,
+	        bodyStyle	: 'padding:10px;',
+	        items	: [{
+	            xtype		: 'itemselector',
+	            name		: 'selectedValues',
+	            imagePath	: imagesPath,
+	            multiselects: [{
+	                width			: 250,
+	                height			: 250,
+	                store			: userTargetListStore_available,
+	                displayField	: 'text',
+	                valueField		: 'value'
+	            }, {
+	                width			: 250,
+	                height			: 250,
+	                store			: userTargetListStore_selected,
+	                displayField	: 'text',
+	                valueField		: 'value'
+	            }]
+	        }],
+	        buttons: [{
+	            text	: 'Update',
+	            handler	: function(){
+	                if(userTargetListForm.getForm().isValid()){
+	                    var values = userTargetListForm.getForm().getValues(true);
+	                	if (values == 'selectedValues=') {
+	                		Ext.Msg.alert('User Target List Preferences', 'Please Select At Least One Available User Target List Column To Display');
+	                	} else {
+	                		var url = JSON_UserTargetList_UserPreferences + "?ACTION='" + action_update + "'&VALUES='" + values + "'";
+		    	    		var responseVal = postURL(url,null);
+		    	    		var result = trim(responseVal);
+		    	    		alert('result: ' + result);
+	                	}
+	                }
+	            }
+	        }]
+	    });
+	} catch (err) {
+		logger.debug("User Preferences Widget: drawGridObject() - userTargetListForm: err: " + err);
+	}
+	
+	try {
+		userPreferencesTabs = new Ext.TabPanel({
+            activeTab	: 0,
+            width		: 950,
+            height		: 350,
+            plain		: true,
+            defaults	: {autoScroll: true},
+            items		: [
+                {
+                    title	: tabTitle_general,
+                    items	: [
+                        { html : '<h2>' + title_general + '</h2>', width: 950 },
+                        generalForm
+                    ]
+                }, {
+                    title	: tabTitle_crList,
+                    items	: [
+                        { html : '<h2>' + title_crList + '</h2>', width: 950 }, 
+                        {
+                        	html : '<p style="padding-top:10px;padding-bottom:5px;">Customize the columns, and their order, that are displayed on the CR List Widget by adding or removing items from the lists below.</p><p><ul><li style="margin-left:10px;">The \'Available\' list displays columns which can be displayed on the CR List Widget grid.</li><li style="margin-left:10px;">The \'Selected\' list displays columns which will have been selected to be displayed in the CR List Widget Grid.</li></ul></p>',
+                        	width: 950
+                        },
+                        crListForm
+                    ]
+                }, {
+                	title	: tabTitle_targetList,
+                	items	: [
+                        { html : '<h2>' + title_targetList + '</h2>', width: 950 }, 
+                        {
+                        	html : '<p style="padding-top:10px;padding-bottom:5px;">Customize the columns, and their order, that are displayed on the Target List Widget by adding or removing items from the lists below.</p><p><ul><li style="margin-left:10px;">The \'Available\' list displays columns which can be displayed on the Target List Widget grid.</li><li style="margin-left:10px;">The \'Selected\' list displays columns which will have been selected to be displayed in the Target List Widget Grid.</li></ul></p>',
+                        	width: 950
+                        },
+                        targetListForm
+                    ]
+                }, {
+                	title	: tabTitle_targetCollectionHistory,
+                	items	: [
+                        { html : '<h2>' + title_targetCollectionHistory + '</h2>', width: 950 }, 
+                        {
+                        	html : '<p style="padding-top:10px;padding-bottom:5px;">Customize the columns, and their order, that are displayed on the Target Collection History List Widget by adding or removing items from the lists below.</p><p><ul><li style="margin-left:10px;">The \'Available\' list displays columns which can be displayed on the Target Collection History List Widget grid.</li><li style="margin-left:10px;">The \'Selected\' list displays columns which will have been selected to be displayed in the Target Collection History List Widget Grid.</li></ul></p>',
+                        	width: 950
+                        },
+                        targetCollectionHistoryForm
+                    ]
+                }, {
+                	title	: tabTitle_targetCollectionRequests,
+                	items	: [
+                        { html : '<h2>' + title_targetCollectionRequests + '</h2>', width: 950 }, 
+                        {
+                        	html : '<p style="padding-top:10px;padding-bottom:5px;">Customize the columns, and their order, that are displayed on the Target Collection Requests List Widget by adding or removing items from the lists below.</p><p><ul><li style="margin-left:10px;">The \'Available\' list displays columns which can be displayed on the Target Collection Requests List Widget grid.</li><li style="margin-left:10px;">The \'Selected\' list displays columns which will have been selected to be displayed in the Target Collection Requests List Widget Grid.</li></ul></p>',
+                        	width: 950
+                        },
+                        targetCollectionRequestsForm
+                    ]
+                }, {
+                	title	: tabTitle_userCRList,
+                	items	: [
+                        { html : '<h2>' + title_userCRList + '</h2>', width: 950 }, 
+                        {
+                        	html : '<p style="padding-top:10px;padding-bottom:5px;">Customize the columns, and their order, that are displayed on the User CR List Widget by adding or removing items from the lists below.</p><p><ul><li style="margin-left:10px;">The \'Available\' list displays columns which can be displayed on the User CR List Widget grid.</li><li style="margin-left:10px;">The \'Selected\' list displays columns which will have been selected to be displayed in the User CR List Widget Grid.</li></ul></p>',
+                        	width: 950
+                        },
+                        userCRListForm
+                    ]
+                }, {
+                	title	: tabTitle_userTargetList,
+                	items	: [
+                        { html : '<h2>' + title_userTargetList + '</h2>', width: 950 }, 
+                        {
+                        	html : '<p style="padding-top:10px;padding-bottom:5px;">Customize the columns, and their order, that are displayed on the User Target List Widget by adding or removing items from the lists below.</p><p><ul><li style="margin-left:10px;">The \'Available\' list displays columns which can be displayed on the User Target List Widget grid.</li><li style="margin-left:10px;">The \'Selected\' list displays columns which will have been selected to be displayed in the User Target List Widget Grid.</li></ul></p>',
+                        	width: 950
+                        },
+                        userTargetListForm
+                    ]
+                }
+            ]
+        });
+	} catch (err) {
+		logger.debug("User Preferences Widget: drawGridObject() - userPreferencesTabs: err: " + err);
+	}
+	
+	try {
+		displayWindow = new Ext.Viewport({
+			id			: 'displayWindow',
+			title		: 'Current Collection Requests',
+			closable	: false,
+			width		: 1075,
+			height		: 650,
+			resizable	: false,
+			collapsible	: false,
+			x: 0, y: 0,
+			draggable	: false,
+			minimizable	: false,
+			plain		: true,
+			layout		: 'fit',
+			items		: userPreferencesTabs,
+	    });
+	    displayWindow.show();
+	} catch (err) {
+		logger.debug("User Preferences Widget: drawGridObject() - dispayWindow: err: " + err);
+	}
+}
+
+Ext.onReady(function(){
+	Ext.QuickTips.init();
+	drawGridObject();
+	loadGeneralFormValues();
+});

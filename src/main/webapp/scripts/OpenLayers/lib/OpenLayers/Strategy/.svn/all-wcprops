@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 107
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Strategy
+END
+Fixed.js
+K 25
+svn:wc:ra_dav:version-url
+V 116
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Strategy/Fixed.js
+END
+Save.js
+K 25
+svn:wc:ra_dav:version-url
+V 115
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Strategy/Save.js
+END
+Paging.js
+K 25
+svn:wc:ra_dav:version-url
+V 117
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Strategy/Paging.js
+END
+Refresh.js
+K 25
+svn:wc:ra_dav:version-url
+V 118
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Strategy/Refresh.js
+END
+Cluster.js
+K 25
+svn:wc:ra_dav:version-url
+V 118
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Strategy/Cluster.js
+END
+BBOX.js
+K 25
+svn:wc:ra_dav:version-url
+V 115
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Strategy/BBOX.js
+END
+Filter.js
+K 25
+svn:wc:ra_dav:version-url
+V 117
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Strategy/Filter.js
+END

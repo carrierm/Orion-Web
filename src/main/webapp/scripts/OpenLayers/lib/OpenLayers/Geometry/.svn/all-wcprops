@@ -1,0 +1,71 @@
+K 25
+svn:wc:ra_dav:version-url
+V 107
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Geometry
+END
+MultiPoint.js
+K 25
+svn:wc:ra_dav:version-url
+V 121
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Geometry/MultiPoint.js
+END
+LinearRing.js
+K 25
+svn:wc:ra_dav:version-url
+V 121
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Geometry/LinearRing.js
+END
+LineString.js
+K 25
+svn:wc:ra_dav:version-url
+V 121
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Geometry/LineString.js
+END
+MultiPolygon.js
+K 25
+svn:wc:ra_dav:version-url
+V 123
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Geometry/MultiPolygon.js
+END
+Point.js
+K 25
+svn:wc:ra_dav:version-url
+V 116
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Geometry/Point.js
+END
+Curve.js
+K 25
+svn:wc:ra_dav:version-url
+V 116
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Geometry/Curve.js
+END
+Rectangle.js
+K 25
+svn:wc:ra_dav:version-url
+V 120
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Geometry/Rectangle.js
+END
+MultiLineString.js
+K 25
+svn:wc:ra_dav:version-url
+V 126
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Geometry/MultiLineString.js
+END
+Collection.js
+K 25
+svn:wc:ra_dav:version-url
+V 121
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Geometry/Collection.js
+END
+Surface.js
+K 25
+svn:wc:ra_dav:version-url
+V 118
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Geometry/Surface.js
+END
+Polygon.js
+K 25
+svn:wc:ra_dav:version-url
+V 118
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Geometry/Polygon.js
+END

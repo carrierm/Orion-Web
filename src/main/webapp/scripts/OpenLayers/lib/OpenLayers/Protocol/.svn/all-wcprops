@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 107
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Protocol
+END
+SOS.js
+K 25
+svn:wc:ra_dav:version-url
+V 114
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Protocol/SOS.js
+END
+WFS.js
+K 25
+svn:wc:ra_dav:version-url
+V 114
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Protocol/WFS.js
+END
+SQL.js
+K 25
+svn:wc:ra_dav:version-url
+V 114
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Protocol/SQL.js
+END
+HTTP.js
+K 25
+svn:wc:ra_dav:version-url
+V 115
+/2gdb-code/!svn/ver/438/CORE/2gdb/trunk/2gdb_war/src/main/webapp/scripts/OpenLayers/lib/OpenLayers/Protocol/HTTP.js
+END

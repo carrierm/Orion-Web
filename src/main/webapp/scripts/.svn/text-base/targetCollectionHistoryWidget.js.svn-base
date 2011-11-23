@@ -1,0 +1,385 @@
+var store;
+var columnModel;
+var editorGrid;
+var displayWindow;
+var general_search;
+var Target_Key_Field;
+var Target_Key_SearchCriteria;
+var Target_ID_Field;
+var Target_ID_SearchCriteria;
+var Target_Name_Field;
+var Target_Name_SearchCriteria;
+var CR_Name_Field;
+var CR_Name_SearchCriteria;
+var Mission_Name_Field;
+var Mission_Name_SearchCriteria;
+var Time_Over_Target_Field;
+var Time_Over_Target_SearchCriteria;
+var target_key = '';
+var descriptionField;
+var textToDisplay = '';
+var pageSizeLimit = 100; 
+var pageNumber = 1;
+
+
+function getData(config) {
+	try {
+		if (textToDisplay == '') {
+			textToDisplay = ' All Target Collection History Data';
+		} else if (textToDisplay != '') {
+			textToDisplay = '';
+		}
+		
+		var xmlhttp;
+		if (window.XMLHttpRequest) { xmlhttp=new XMLHttpRequest(); }
+		else { xmlhttp=new ActiveXObject("Microsoft.XMLHTTP"); }
+		
+		target_key = '';
+		
+		var launchConfig;
+		if (config != null) {
+			launchConfig = config;
+		} else {
+			launchConfig = Ozone.launcher.WidgetLauncherUtils.getLaunchConfigData();
+		}
+		if(launchConfig == null) {
+			data = {channel: CHANNEL_NAME_targetCollectionHistory};
+			launchConfig = Ozone.util.toString(data);
+		}
+		
+		if (!launchConfig) {
+			var scope = this;
+			this.gadgetEventingController = new Ozone.eventing.Widget('rpc_relay.uncompressed.html', 
+				function() { 
+					scope.gadgetEventingController.subscribe.apply(scope, [ channelToUse, scope.update ]);
+					scope.update;
+				}
+			);
+		} else {
+			var data = Ozone.util.parseJson(launchConfig);
+			if (data.type != null) {
+				if (data.type == 'TARGET_KEY') {
+					target_key = data.value;
+					prev_targetKey = '';
+					
+					xmlhttp.open("POST", "#?target_key='" + target_key + "'", true);
+					xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+					xmlhttp.send("target_key='" + target_key + "'");
+				}
+			}
+			var channelToUse = data.channel;
+			var scope = this;
+			this.gadgetEventingController = new Ozone.eventing.Widget('rpc_relay.uncompressed.html', 
+				function() {
+					scope.gadgetEventingController.subscribe.apply(scope, [ channelToUse, scope.update ]);
+					scope.update;
+				}
+			);
+		}
+
+		if (target_key == '' || target_key == null || target_key == "null") {
+			if (prev_targetKey != null && prev_targetKey != '' && prev_targetKey != "null") {
+				target_key = prev_targetKey;
+			}
+		}
+		
+		if (target_key != null && target_key!= '') {
+			var url = "JSON/JSON_Target_Collection_History.jsp?pageNumber=" + pageNumber + "&pageSize=" + pageSizeLimit;
+			
+			if (target_key != null && target_key!= '') {
+				url += "&target_key='" + target_key + "'";
+				textToDisplay = ' Target Collection History Results for TARGET KEY: ' + target_key;
+			}
+			if (general_search != null && general_search != '') {
+				url += "&general_search='" + general_search + "'";
+			}
+			
+			if (Target_Key_Field != null && Target_Key_Field != '') {
+				url += "&target_key='" + Target_Key_Field + "'";
+				url += "&target_key_criteria='" + Target_Key_SearchCriteria + "'";
+			}
+			if (Target_ID_Field != null && Target_ID_Field != '') {
+				url += "&target_id='" + Target_ID_Field + "'";
+				url += "&target_id_criteria='" + Target_ID_SearchCriteria + "'";
+			}
+			if (Target_Name_Field != null && Target_Name_Field != '') {
+				url += "&target_name'" + Target_Name_Field + "'";
+				url += "&target_name_criteria='" + Target_Name_SearchCriteria + "'";
+			}
+			if (CR_Name_Field != null && CR_Name_Field != '') {
+				url += "&cr_name='" + CR_Name_Field + "'";
+				url += "&cr_name_criteria='" + Target_ID_SearchCriteria + "'";
+			}
+			if (Mission_Name_Field != null && Mission_Name_Field != '') {
+				url += "&mission_name='" + Mission_Name_Field + "'";
+				url += "&mission_name_criteria='" + Mission_Name_SearchCriteria + "'";
+			}
+			if (Time_Over_Target_Field != null && Time_Over_Target_Field != '') {
+				url += "&time_over_target='" + Time_Over_Target_Field + "'";
+				url += "&time_over_target_criteria='" + Time_Over_Target_SearchCriteria + "'";
+			}
+			
+			if (textToDisplay == '') {
+				textToDisplay = 'All Target Collection History Data';
+			}
+			
+			logger.debug('Target Collection History Widget: getData(): url: ' + url);
+			if (!descriptionField || descriptionField == null) {
+				descriptionField = Ext.getCmp('displayDescription');
+			}
+			if (descriptionField != null) {
+				descriptionField.update('Updating ' + textToDisplay);
+			}
+			var responseVal = postURL(url,null);
+			if (descriptionField != null) {
+				descriptionField.update('Displaying ' + textToDisplay);
+			}
+			
+			return eval(trim(responseVal));
+		}
+	} catch (err) {
+		logger.debug("Target Collection History Widget: getData(): err: " + err);
+	}
+}
+
+function drawGridObject(configString) {
+	try {
+		store = new Ext.data.Store({
+			pageSize: pageSizeLimit,
+			autoLoad: {params:{start:0, limit:pageSizeLimit}},
+			proxy: new Ext.data.MemoryProxy(getData(configString)),
+
+			reader: new Ext.data.ArrayReader({}, [
+                {name: 'target_event_pk'},
+			   	{name: 'target_key'},
+		   		{name: 'target_id'},
+			   	{name: 'target_name'},
+			   	{name: 'cr_name'},
+			   	{name: 'mission_name'},
+			   	{name: 'tot'},
+			   	{name: 'cr_key'}
+              ]),
+            sortInfo:{field: 'tot', direction: "ASC"}
+		});
+		
+		columnModel = new Ext.grid.ColumnModel(
+		[
+		 new Ext.grid.RowNumberer({width: 30}),
+		 	{
+				header    	: 'Target Key',
+				width     	: 150,
+				align		: 'center',
+				sortable 	: false,
+				dataIndex	: 'target_key',
+				style		: {"text-align": 'center'},
+				editor		: new Ext.form.TextField({
+					 readOnly	: true,
+					 editable	: false
+		        }),
+				renderer	:  function(val, x, store) {
+					return '<div class=\"cellContent\"><a href="javascript:getAllTargetWidgetDetails({target_key: \'' + store.data.target_key + '\'});">' + val + '</a></div>'; 
+				}
+			}, {
+				header     	: 'Target ID',
+				width	 	: 150,
+				align		: 'center',
+				sortable 	: true,
+				dataIndex	: 'target_id',
+				style		: {"text-align": 'center'},
+				editor		: new Ext.form.TextField({
+					 readOnly	: true,
+					 editable	: false
+		        }),
+		        renderer	:  function(val, x, store) {
+					 return '<div class=\"cellContent\">' + val + '</div>'; 
+				}
+			}, {
+				header     	: 'Target Name',
+				width    	: 150,
+				align		: 'center',
+				sortable 	: true,
+				dataIndex	: 'target_name',
+				style		: {"text-align": 'center'},
+				editor		: new Ext.form.TextField({
+					 readOnly	: true,
+					 editable	: false
+		        }),
+				renderer	:  function(val, x, store) {
+					 return '<div class=\"cellContent\">' + val + '</div>'; 
+				}
+			}, {
+				header     	: 'CR Name',
+				width    	: 150,
+				align		: 'center',
+				sortable 	: true,
+				dataIndex	: 'cr_name',
+				style		: {"text-align": 'center'},
+				editor		: new Ext.form.TextField({
+					 readOnly	: true,
+					 editable	: false
+		        }),
+				renderer	:  function(val, x, store){											
+					return '<div class=\"cellContent\"><a href="javascript:getAllCRWidgetDetails({cr_key: \'' + store.data.cr_key + '\', cr_name: \'' + store.data.cr_name + '\'});">' + val + '</a></div>'; 
+				}
+			}, {
+				header     	: 'Mission Name',
+				width    	: 150,
+				align		: 'center',
+				sortable 	: true,
+				dataIndex	: 'mission_name',
+				style		: {"text-align": 'center'},
+				editor		: new Ext.form.TextField({
+					 readOnly	: true,
+					 editable	: false
+		        }),
+				renderer	:  function(val, x, store) {
+					 return '<div class=\"cellContent\">' + val + '</div>'; 
+				}
+			}, {
+				header     	: 'Time Over Target',
+				width    	: 150,
+				align		: 'center',
+				sortable 	: true,
+				dataIndex	: 'tot',
+				style		: {"text-align": 'center'},
+				editor		: new Ext.form.TextField({
+					 readOnly	: true,
+					 editable	: false
+		        }),
+				renderer	:  function(val, x, store) {
+					 return '<div class=\"cellContent\">' + val + '</div>'; 
+				}
+			}, {
+				header     	: 'More Details',
+				tooltip		: 'View More Details About This Target Collection History Record',
+				width    	: 75,
+				align		: 'center',
+				sortable 	: true,
+				dataIndex	: 'target_event_pk',
+				style		: {"text-align": 'center'},
+				renderer	:  function(val, x, store) {											
+					return '<div class=\"cellContent\"><img src="../images/details_icon.gif" alt="View More Details About This Target Collection History Record" align="middle" onClick="getAllTargetCollectionHistoryWidgetDetails({target_event_pk: \'' + store.data.target_event_pk + '\'});"  /></div>'; 
+				}
+			}]
+		);
+		var displayDetailsHtml = getDisplayDescriptionHtml();
+		editorGrid =  new Ext.grid.EditorGridPanel({
+			id			: 'editorGrid',
+			store		: store,
+			sm		: new Ext.grid.RowSelectionModel({
+                singleSelect: true,
+                multiSelect: true,
+                listeners: {
+                     rowselect: function(smObj, rowIndex, record) {
+                         selRecordStore = record;
+                    }
+               }
+            }),
+			cm			: columnModel,
+			stripeRows	: true,
+			clicksToEdit: 1,
+			bbar		: new Ext.PagingToolbar({
+	            pageSize	: pageSizeLimit,
+	            store		: store,
+	            displayInfo	: true,
+	            displayMsg	: 'Displaying Target Collection History Records {0} - {1} of {2}',
+				emptyMsg	: 'No Target Collection History Records To Display',
+	            items		: [
+	                '-',
+		            {
+					    xtype	: 'tbbutton',
+					    cls		: 'x-btn-icon',
+					    icon 	: '../images/feedback_icon_small.jpg',
+					    tooltip	: 'Provide Feedback About This Form',
+					    width	: 30,
+					    handler	: function() {
+					    	createFeedbackForm('Target Collection History List');
+					    }
+					}, '-',
+					{
+						   html: displayDetailsHtml,
+						   id: 'displayDescription'
+					}
+	            ]
+	        })
+		});    
+		descriptionField = Ext.getCmp('displayDescription');
+		
+		function onEditorGridContextMenu(grid, rowIndex, e){
+			e.stopEvent();
+		    var coords = e.getXY();
+		    GridRowContextMenu.rowRecord = grid.store.getAt(rowIndex);
+		    grid.selModel.selectRow(rowIndex);
+		    GridRowContextMenu.showAt([coords[0], coords[1]]);
+		}
+
+		GridRowContextMenu = new Ext.menu.Menu({
+		      id: 'GridRowContextMenu',
+		      items: [
+		          { text: 'More Details', iconCls:'view-details', handler: function() { getAllTargetCollectionHistoryWidgetDetails({target_event_pk:GridRowContextMenu.rowRecord.get('target_event_pk')}); }}
+		      ]
+		 });
+		editorGrid.addListener('rowcontextmenu', onEditorGridContextMenu);
+		
+		displayWindow = new Ext.Viewport({
+			id			: 'displayWindow',
+			title		: 'Target Collection History',
+			renderTo 	: 'grid-example',
+			closable	: false,
+			width		: 1075,
+			height		: 650,
+			resizable	: false,
+			collapsible	: false,
+			x: 0, y: 0,
+			draggable	: false,
+			minimizable	: false,
+			plain		: true,
+			layout		: 'fit',
+			items		: editorGrid
+		});
+
+		store.load();
+		displayWindow.show();
+	} catch (err) {
+		logger.debug("Target Collection History Widget: err: " + err);
+	}  
+}
+
+function getDisplayDescriptionHtml() {
+	textToDisplay = '<p>Displaying All Target Collection History Data</p>';
+	if (target_key != null && target_key != '') {
+		textToDisplay = '<p>Displaying Target Collection History for TARGET KEY: ' + target_key + '</p>';
+	}
+	return textToDisplay;
+}
+
+var update = function(sender, msg) {
+	try {
+		logger.debug('Target Collection History List Widget :: MSG :' + msg );
+		
+		var data = Ozone.util.parseJson(msg);
+		if (data.type != null) {
+			eventType = data.type;
+			
+			if (data.type == 'TARGET_KEY') {
+				target_key = data.value;
+				textToDisplay = 'Updating Target Collection History for TARGET KEY: ' + target_key;
+			} 
+		}
+		if (!descriptionField || descriptionField == null) {
+			descriptionField = Ext.getCmp('displayDescription');
+		}
+		if (descriptionField != null) {
+			descriptionField.update(textToDisplay);
+		}
+		
+		store.loadData(getData(msg));
+	} catch(err) {
+		logger.debug('Target Collection History Widget: update(): err: "' + err);
+	}
+}
+
+Ext.onReady(function(){
+	Ext.QuickTips.init();
+	drawGridObject();
+});
